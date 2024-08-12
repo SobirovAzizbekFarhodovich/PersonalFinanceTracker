@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option go_package = "genprotos/";
+
+package account;
+
+service AccountService {
+    rpc CreateAccount(CreateAccountRequest) returns(CreateAccountResponse){}
+    rpc UpdateAccount(UpdateAccountRequest) returns(UpdateAccountResponse){}
+    rpc DeleteAccount(DeleteAccountRequest) returns(DeleteAccountResponse){}
+    rpc GetAccount(GetAccountRequest)returns(GetAccountResponse){}
+    rpc ListAccounts(ListAccountsRequest) returns(ListAccountsResponse){}
+}
+
+message CreateAccountRequest{
+    Account account = 1;
+}
+
+message CreateAccountResponse{}
+
+message Account{
+    string id = 1;
+    string user_id = 2;
+    string name = 3;
+    string type = 4;
+    float balance = 5;
+    string currency = 6;
+}
+
+message UpdateAccountRequest{
+    Account account = 1;
+}
+
+message UpdateAccountResponse{}
+
+
+message GetAccountRequest{
+    string id = 1;
+}
+
+message GetAccountResponse{
+    Account account = 1;
+}
+
+message DeleteAccountRequest{
+    string id = 1;
+}
+
+message DeleteAccountResponse{}
+
+message ListAccountsRequest{
+    int32 limit = 1;
+    int32 page = 2;
+}
+
+message ListAccountsResponse{
+    repeated Account accounts = 1;
+}

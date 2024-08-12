@@ -1,0 +1,880 @@
+basePath: /
+definitions:
+  genprotos.Account:
+    properties:
+      balance:
+        type: number
+      currency:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genprotos.Budget:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      period:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genprotos.Category:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genprotos.CreateAccountRequest:
+    properties:
+      account:
+        $ref: '#/definitions/genprotos.Account'
+    type: object
+  genprotos.CreateBudgetRequest:
+    properties:
+      budget:
+        $ref: '#/definitions/genprotos.Budget'
+    type: object
+  genprotos.CreateCategoryRequest:
+    properties:
+      category:
+        $ref: '#/definitions/genprotos.Category'
+    type: object
+  genprotos.CreateGoalRequest:
+    properties:
+      goal:
+        $ref: '#/definitions/genprotos.Goal'
+    type: object
+  genprotos.CreateTransactionRequest:
+    properties:
+      transaction:
+        $ref: '#/definitions/genprotos.Transaction'
+    type: object
+  genprotos.GetAccountResponse:
+    properties:
+      account:
+        $ref: '#/definitions/genprotos.Account'
+    type: object
+  genprotos.GetBudgetResponse:
+    properties:
+      budget:
+        $ref: '#/definitions/genprotos.Budget'
+      categories:
+        $ref: '#/definitions/genprotos.Category'
+    type: object
+  genprotos.GetCategoryResponse:
+    properties:
+      category:
+        $ref: '#/definitions/genprotos.Category'
+    type: object
+  genprotos.GetGoalResponse:
+    properties:
+      goal:
+        $ref: '#/definitions/genprotos.Goal'
+    type: object
+  genprotos.GetTransactionResponse:
+    properties:
+      account:
+        $ref: '#/definitions/genprotos.Account'
+      category:
+        $ref: '#/definitions/genprotos.Category'
+      transaction:
+        $ref: '#/definitions/genprotos.Transaction'
+    type: object
+  genprotos.Goal:
+    properties:
+      current_amount:
+        type: number
+      deadline:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      target_amount:
+        type: number
+      user_id:
+        type: string
+    type: object
+  genprotos.ListAccountsResponse:
+    properties:
+      accounts:
+        items:
+          $ref: '#/definitions/genprotos.Account'
+        type: array
+    type: object
+  genprotos.ListBudgetsResponse:
+    properties:
+      budgets:
+        items:
+          $ref: '#/definitions/genprotos.GetBudgetResponse'
+        type: array
+    type: object
+  genprotos.ListCategoriesResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/genprotos.Category'
+        type: array
+    type: object
+  genprotos.ListGoalsResponse:
+    properties:
+      goals:
+        items:
+          $ref: '#/definitions/genprotos.Goal'
+        type: array
+    type: object
+  genprotos.ListTransactionsResponse:
+    properties:
+      transactions:
+        items:
+          $ref: '#/definitions/genprotos.GetTransactionResponse'
+        type: array
+    type: object
+  genprotos.Transaction:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      category_id:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  genprotos.UpdateAccountRequest:
+    properties:
+      account:
+        $ref: '#/definitions/genprotos.Account'
+    type: object
+  genprotos.UpdateBudgetRequest:
+    properties:
+      budget:
+        $ref: '#/definitions/genprotos.Budget'
+    type: object
+  genprotos.UpdateCategoryRequest:
+    properties:
+      category:
+        $ref: '#/definitions/genprotos.Category'
+    type: object
+  genprotos.UpdateGoalRequest:
+    properties:
+      goal:
+        $ref: '#/definitions/genprotos.Goal'
+    type: object
+  genprotos.UpdateTransactionRequest:
+    properties:
+      transaction:
+        $ref: '#/definitions/genprotos.Transaction'
+    type: object
+info:
+  contact: {}
+  description: Developing a platform that helps users track their spending, set a
+    budget and manage their financial goals
+  title: Budgeting SYSTEM API
+  version: "1.0"
+paths:
+  /account/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Account
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Account
+      tags:
+      - Account
+  /account/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Account
+      tags:
+      - Account
+  /account/get:
+    get:
+      consumes:
+      - application/json
+      description: ListAccounts
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListAccountsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: ListAccounts
+      tags:
+      - Account
+  /account/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Account record by ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetAccountResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Account
+      tags:
+      - Account
+  /account/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Account
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Account
+      tags:
+      - Account
+  /budget/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Budget
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateBudgetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Budget
+      tags:
+      - Budget
+  /budget/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Budget
+      parameters:
+      - description: Budget ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Budget
+      tags:
+      - Budget
+  /budget/get:
+    get:
+      consumes:
+      - application/json
+      description: ListCategories
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListCategoriesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: ListCategories
+      tags:
+      - Budget
+  /budget/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Budget record by ID
+      parameters:
+      - description: Budget ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetBudgetResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Budget
+      tags:
+      - Budget
+  /budget/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Budget
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateBudgetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Budget
+      tags:
+      - Budget
+  /category/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Category
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Category
+      tags:
+      - Category
+  /category/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Category
+      tags:
+      - Category
+  /category/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Category record by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetCategoryResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Category
+      tags:
+      - Category
+  /category/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Category
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Category
+      tags:
+      - Category
+  /goal/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Goal
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Goal
+      tags:
+      - Goal
+  /goal/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Goal
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Goal
+      tags:
+      - Goal
+  /goal/get:
+    get:
+      consumes:
+      - application/json
+      description: ListGoals
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListGoalsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: ListGoals
+      tags:
+      - Goal
+  /goal/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Goal record by ID
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetGoalResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Goal
+      tags:
+      - Goal
+  /goal/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Goal
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Goal
+      tags:
+      - Goal
+  /transaction/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Transaction
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Transaction
+      tags:
+      - Transaction
+  /transaction/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Transaction
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Transaction
+      tags:
+      - Transaction
+  /transaction/get:
+    get:
+      consumes:
+      - application/json
+      description: ListTransactions
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListTransactionsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: ListTransactions
+      tags:
+      - Transaction
+  /transaction/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Transaction record by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetTransactionResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Transaction
+      tags:
+      - Transaction
+  /transaction/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Transaction
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Transaction
+      tags:
+      - Transaction
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

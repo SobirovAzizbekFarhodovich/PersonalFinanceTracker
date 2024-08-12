@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+option go_package = "genprotos/";
+
+package user;
+
+service UserService{
+    rpc RegisterUser(RegisterUserRequest) returns(RegisterUserResponse){}
+    rpc LoginUser(LoginUserRequest) returns(LoginUserResponse){}
+    rpc GetByIdUser(GetByIdUserRequest)returns(GetByIdUserResponse){}
+    rpc GetAllUsers(GetAllUsersRequest)returns(GetAllUsersResponse){}
+    rpc UpdateUser(UpdateUserRequest) returns(UpdateUserResponse){}
+    rpc DeleteUser(DeleteUserRequest) returns(DeleteUserResponse){}
+    rpc ChangePassword(ChangePasswordRequest)returns(ChangePasswordResponse){}
+    rpc ForgotPassword(ForgotPasswordRequest)returns(ForgotPasswordResponse){}
+    rpc ResetPassword(ResetPasswordRequest)returns(ResetPasswordResponse){}
+}
+
+message ResetPasswordRequest{
+    string id = 1;
+    string password_hash = 2;
+    string reset_token = 3;
+}
+
+message ResetPasswordResponse{}
+
+message RegisterUserRequest{
+    string email = 1;
+    string password_hash = 2;
+    string first_name = 3;
+    string last_name = 4; 
+}
+
+message RegisterUserResponse{}
+
+message LoginUserRequest{
+    string email = 1;
+    string password_hash = 2;
+}
+
+message LoginUserResponse{
+    string id = 1;
+    string email = 2;
+    string password_hash = 3;
+    string first_name = 4;
+    string last_name = 5;
+}
+
+message GetByIdUserRequest{
+    string id = 1;
+}
+
+message GetByIdUserResponse{
+    string id = 1;
+    string email = 2;
+    string first_name = 3;
+    string last_name = 4;
+}
+
+message GetAllUsersRequest{
+    int32 limit = 1;
+    int32 offset = 2;
+}
+
+message GetAllUsersResponse{
+    repeated LoginUserResponse user = 1;
+}
+
+message UpdateUserRequest{
+    string id = 1;
+    string email = 2;
+    string first_name = 3;
+    string last_name = 4;
+}
+
+message UpdateUserResponse{
+    string email = 1;
+    string first_name = 3;
+    string id = 4;
+    string last_name = 2;
+}
+
+message DeleteUserRequest{
+    string id = 1;
+}
+message DeleteUserResponse{}
+
+message ChangePasswordRequest{
+    string current_password = 1;
+    string new_password = 2;
+    string id = 3;
+}
+
+message ChangePasswordResponse{}
+
+message ForgotPasswordRequest{
+    string email = 1;
+}
+
+message ForgotPasswordResponse{}

@@ -1,0 +1,380 @@
+basePath: /
+definitions:
+  genprotos.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  genprotos.GetByIdUserResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+  genprotos.LoginUserRequest:
+    properties:
+      email:
+        type: string
+      password_hash:
+        type: string
+    type: object
+  genprotos.RegisterUserRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password_hash:
+        type: string
+    type: object
+  genprotos.UpdateUserRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+  genprotos.UpdateUserResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+  handler.changePass:
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    type: object
+  handler.resetPass:
+    properties:
+      newPassword:
+        type: string
+      resetToken:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: auth service API
+  title: auth service API
+  version: "1.0"
+paths:
+  /user/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: Change Password
+        in: body
+        name: ChangePass
+        required: true
+        schema:
+          $ref: '#/definitions/handler.changePass'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password Changed Successfully
+          schema:
+            type: body
+        "400":
+          description: Error while changing password
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Change Password
+      tags:
+      - User
+  /user/delete-profil:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing Profil
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete Successful
+          schema:
+            type: string
+        "400":
+          description: Error while deleting user
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Profil
+      tags:
+      - User
+  /user/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete Successfully
+          schema:
+            type: string
+        "400":
+          description: Error while deleting user
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - User
+  /user/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Initiate forgot password process
+      parameters:
+      - description: Forgot Password
+        in: body
+        name: ForgotPass
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Forgot Password Initiated Successfully
+          schema:
+            type: body
+        "400":
+          description: Error while initiating forgot password
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Forgot Password
+      tags:
+      - User
+  /user/get-by-id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get By ID Successful
+          schema:
+            $ref: '#/definitions/genprotos.GetByIdUserResponse'
+        "400":
+          description: Error while retrieving user
+          schema:
+            type: string
+        "404":
+          description: User Not Found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get User By ID
+      tags:
+      - User
+  /user/get-profil:
+    get:
+      consumes:
+      - application/json
+      description: Get a user Profil
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get Profil Successful
+          schema:
+            $ref: '#/definitions/genprotos.GetByIdUserResponse'
+        "400":
+          description: Error while retrieving user
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get User Profil
+      tags:
+      - User
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login Successfully
+          schema:
+            type: string
+        "400":
+          description: Error while logging in
+          schema:
+            type: string
+        "404":
+          description: User Not Found
+          schema:
+            type: string
+      summary: Login User
+      tags:
+      - User
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Create Successfully
+          schema:
+            type: string
+        "400":
+          description: Error while creating user
+          schema:
+            type: string
+      summary: Register User
+      tags:
+      - User
+  /user/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset user password
+      parameters:
+      - description: Reset Password
+        in: body
+        name: ResetPass
+        required: true
+        schema:
+          $ref: '#/definitions/handler.resetPass'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password Reset Successfully
+          schema:
+            type: string
+        "400":
+          description: Error while resetting password
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Reset Password
+      tags:
+      - User
+  /user/update-profil:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update Successful
+          schema:
+            $ref: '#/definitions/genprotos.UpdateUserResponse'
+        "400":
+          description: Error while updating user
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Profil
+      tags:
+      - User
+  /user/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update Successful
+          schema:
+            type: string
+        "400":
+          description: Error while updating user
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update User
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

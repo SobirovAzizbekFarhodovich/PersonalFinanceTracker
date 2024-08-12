@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+option go_package = "genprotos/";
+
+package transaction;
+
+import "category.proto";
+import "account.proto";
+
+service TransactionService {
+    rpc CreateTransaction(CreateTransactionRequest) returns(CreateTransactionResponse){}
+    rpc UpdateTransaction(UpdateTransactionRequest) returns(UpdateTransactionResponse){}
+    rpc DeleteTransaction(DeleteTransactionRequest) returns(DeleteTransactionResponse){}
+    rpc GetTransaction(GetTransactionRequest)returns(GetTransactionResponse){}
+    rpc ListTransactions(ListTransactionsRequest) returns(ListTransactionsResponse){}
+}
+
+message CreateTransactionRequest{
+    Transaction transaction = 1;
+}
+
+message CreateTransactionResponse{}
+
+message Transaction{
+    string id = 1;
+    string user_id = 2;
+    string account_id = 3;
+    string category_id = 4;
+    float amount = 5;
+    string type = 6;
+    string description = 7;
+    string date = 8;
+}
+
+message UpdateTransactionRequest{
+    Transaction transaction = 1;
+}
+
+message UpdateTransactionResponse{}
+
+
+message GetTransactionRequest{
+    string id = 1;
+}
+
+message GetTransactionResponse{
+    Transaction transaction = 1;
+    category.Category category = 2;
+    account.Account account = 3;
+}
+
+message DeleteTransactionRequest{
+    string id = 1;
+}
+
+message DeleteTransactionResponse{}
+
+message ListTransactionsRequest{
+    int32 limit = 1;
+    int32 page = 2;
+}
+
+message ListTransactionsResponse{
+    repeated GetTransactionResponse transactions = 1;
+}

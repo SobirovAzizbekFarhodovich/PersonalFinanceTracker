@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "genprotos/";
+
+package category;
+
+service CategoryService {
+    rpc CreateCategory(CreateCategoryRequest) returns(CreateCategoryResponse){}
+    rpc UpdateCategory(UpdateCategoryRequest) returns(UpdateCategoryResponse){}
+    rpc DeleteCategory(DeleteCategoryRequest) returns(DeleteCategoryResponse){}
+    rpc GetCategory(GetCategoryRequest)returns(GetCategoryResponse){}
+    rpc ListCategories(ListCategoriesRequest) returns(ListCategoriesResponse){}
+}
+
+message CreateCategoryRequest{
+    Category category = 1;
+}
+
+message CreateCategoryResponse{}
+
+message Category{
+    string id = 1;
+    string user_id = 2;
+    string name = 3;
+    string type = 4;
+}
+
+message UpdateCategoryRequest{
+    Category category = 1;
+}
+
+message UpdateCategoryResponse{}
+
+
+message GetCategoryRequest{
+    string id = 1;
+}
+
+message GetCategoryResponse{
+    Category category = 1;
+}
+
+message DeleteCategoryRequest{
+    string id = 1;
+}
+
+message DeleteCategoryResponse{}
+
+message ListCategoriesRequest{
+    int32 limit = 1;
+    int32 page = 2;
+}
+
+message ListCategoriesResponse{
+    repeated Category categories = 1;
+}

@@ -1,0 +1,126 @@
+version: '1.0'
+
+services:
+  api-gateway:
+    container_name: gateway1
+    build: ./Api_Gateway
+    depends_on:
+      - auth-service
+      - budgeting-service
+    ports:
+      - "8082:8082"
+    networks:
+      - budgeting
+    volumes:
+      - ./Api_Gateway:/home/sobirov/go/src/gitlab.com/PersonalFinanceTracker/Api_Gateway
+
+  auth-service:
+    container_name: auth_service2
+    build: ./Auth_service
+    depends_on: 
+      - postgres-db
+      - budgeting-service
+      - kafka
+      - redis
+      - zookeeper
+    ports:
+      - "8000:8000"
+    networks:
+      - budgeting
+
+  budgeting-service:
+    container_name: budgeting_service
+    build: ./Budgeting_service
+    depends_on:
+      - mongo-db
+    ports:
+      - "50055:50055"
+    networks:
+      - budgeting
+    environment:
+      MONGO_URI: mongodb://mongo-db:27017/budgeting
+
+  postgres-db:
+    container_name: auth
+    image: postgres:16.3
+    environment:
+      POSTGRES_USER: azizbek
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: auth
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5430:5432"
+    networks:
+      - budgeting
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d auth -U azizbek"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    networks: 
+      - budgeting
+    volumes:
+      - ./Auth_service/migrations:/migrations
+    command: [ "-path", "/migrations", "-database", "postgres://azizbek:123@auth:5432/auth?sslmode=disable", "up" ]
+    depends_on:
+      - postgres-db
+
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:latest
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - budgeting
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    container_name: zookeeper1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+    networks:
+      - budgeting
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    networks:
+      - budgeting
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  redis:
+    image: redis:latest
+    container_name: redis1
+    ports:
+      - "6370:6370"
+    networks:
+      - budgeting
+
+networks:
+  budgeting:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:

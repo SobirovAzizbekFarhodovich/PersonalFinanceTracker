@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option go_package = "genprotos/";
+
+package goal;
+
+service GoalService {
+    rpc CreateGoal(CreateGoalRequest) returns(CreateGoalResponse){}
+    rpc UpdateGoal(UpdateGoalRequest) returns(UpdateGoalResponse){}
+    rpc DeleteGoal(DeleteGoalRequest) returns(DeleteGoalResponse){}
+    rpc GetGoal(GetGoalRequest)returns(GetGoalResponse){}
+    rpc ListGoals(ListGoalsRequest) returns(ListGoalsResponse){}
+    rpc GenerateGoalProgressReport(GenerateGoalProgressReportRequest)returns(GenerateGoalProgressReportResponse){}
+}
+
+message CreateGoalRequest{
+    Goal goal = 1;
+}
+
+
+message CreateGoalResponse{}
+
+message Goal{
+    string id = 1;
+    string user_id = 2;
+    string name = 3;
+    float target_amount = 4;
+    float current_amount = 5;
+    string deadline = 6;
+    string status = 7;
+}
+
+message UpdateGoalRequest{
+    Goal goal = 1;
+}
+
+message UpdateGoalResponse{}
+
+
+message GetGoalRequest{
+    string id = 1;
+}
+
+message GetGoalResponse{
+    Goal goal = 1;
+}
+
+message DeleteGoalRequest{
+    string id = 1;
+}
+
+message DeleteGoalResponse{}
+
+message ListGoalsRequest{
+    int32 limit = 1;
+    int32 page = 2;
+}
+
+message ListGoalsResponse{
+    repeated Goal goals = 1;
+}
+
+message GenerateGoalProgressReportRequest{
+    string id = 1;
+}
+
+message GenerateGoalProgressReportResponse{
+    string user_id = 1;
+    string name = 2;
+    float target_amount = 3;
+    float current_amount = 4;
+    float remain_amount = 5;
+    string deadline = 6;
+    string status = 7;
+}
