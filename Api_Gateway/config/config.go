@@ -19,6 +19,7 @@ type Config struct {
 	DB_NAME     string
 
 	LOG_PATH string
+	TokenKey string
 }
 
 func Load() Config {
@@ -31,6 +32,7 @@ func Load() Config {
 	config.AUTH_PORT = cast.ToString(getEnv("AUTH_PORT", ":8002"))
 	config.BUDGETING_PORT = cast.ToString(getEnv("BUDGETING_PORT", ":50055"))
 	config.LOG_PATH = cast.ToString(getEnv("LOG_PATH", "logs/info.log"))
+	config.TokenKey = cast.ToString(getEnv("TOKEN_KEY", "my_secret_key"))
 
 	return config
 }

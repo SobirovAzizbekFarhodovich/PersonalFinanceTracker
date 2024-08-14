@@ -7,7 +7,7 @@ import (
 	_ "api/genprotos/auth"
 	_ "api/genprotos/budgeting"
 
-	"api/api/middlerware"
+	"api/api/middleware"
 	"log"
 
 	"github.com/casbin/casbin/v2"
@@ -36,8 +36,8 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 		log.Fatal(err)
 	}
 
-	sw := router.Group("/")
-	sw.Use(middlerware.NewAuth(enforcer))
+	// sw := router.Group("/")
+	router.Use(middleware.NewAuth(enforcer))
 
 	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(cors.New(cors.Config{
@@ -52,24 +52,25 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 	{
 		account.POST("/create", budgeting.CreateAccount)
 		account.PUT("/update", budgeting.UpdateAccount)
-		account.GET("/get/{id}", budgeting.GetAccount)
-		account.DELETE("/delete/{id}",budgeting.DeleteAccount)
+		account.GET("/get/:id", budgeting.GetAccount)
+		account.DELETE("/delete/:id",budgeting.DeleteAccount)
 		account.GET("/get",budgeting.ListAccounts)
 	}
 	budget := router.Group("/budget")
 	{
 		budget.POST("/create", budgeting.CreateBudget)
 		budget.PUT("/update", budgeting.UpdateBudget)
-		budget.GET("/get/{id}", budgeting.GetBudget)
-		budget.DELETE("/delete/{id}",budgeting.DeleteBudget)
+		budget.GET("/get/:id", budgeting.GetBudget)
+		budget.DELETE("/delete/:id",budgeting.DeleteBudget)
 		budget.GET("/get",budgeting.ListBudgets)
+		budget.GET("/:id/performance-report",budgeting.GenerateBudgetPerformanceReport)
 	}
 	category := router.Group("/category")
 	{
 		category.POST("/create", budgeting.CreateCategory)
 		category.PUT("/update", budgeting.UpdateCategory)
-		category.GET("/get/{id}", budgeting.GetCategory)
-		category.DELETE("/delete/{id}",budgeting.DeleteCategory)
+		category.GET("/get/:id", budgeting.GetCategory)
+		category.DELETE("/delete/:id",budgeting.DeleteCategory)
 		category.GET("/get",budgeting.ListCategories)
 	}
 
@@ -77,20 +78,27 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 	{
 		goal.POST("/create", budgeting.CreateGoal)
 		goal.PUT("/update", budgeting.UpdateGoal)
-		goal.GET("/get/{id}", budgeting.GetGoal)
-		goal.DELETE("/delete/{id}",budgeting.DeleteGoal)
+		goal.GET("/get/:id", budgeting.GetGoal)
+		goal.DELETE("/delete/:id",budgeting.DeleteGoal)
 		goal.GET("/get",budgeting.ListGoals)
+		goal.GET("/getprogress/:id",budgeting.GenerateGoalProgressReport)
 	}
 
 	transaction := router.Group("/transaction")
 	{
 		transaction.POST("/create", budgeting.CreateTransaction)
 		transaction.PUT("/update", budgeting.UpdateTransaction)
-		transaction.GET("/get/{id}", budgeting.GetTransaction)
-		transaction.DELETE("/delete/{id}",budgeting.DeleteTransaction)
+		transaction.GET("/get/:id", budgeting.GetTransaction)
+		transaction.DELETE("/delete/:id",budgeting.DeleteTransaction)
 		transaction.GET("/get",budgeting.ListTransactions)
+		transaction.GET("/income",budgeting.Income)
+		transaction.GET("/spending",budgeting.Spending)
 	}
-
+	
+	notification := router.Group("/notification")
+	{
+		notification.GET("/get",budgeting.ListNotifications)
+	}
 
 	return router
 }

@@ -2,9 +2,11 @@ package mongo
 
 import (
 	"context"
+	"errors"
 
 	e "budgeting/extra"
 	pb "budgeting/genprotos"
+	m "budgeting/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -50,81 +52,106 @@ func (s *Transaction) DeleteTransaction(req *pb.DeleteTransactionRequest) (*pb.D
 }
 
 func (s *Transaction) GetTransaction(req *pb.GetTransactionRequest) (*pb.GetTransactionResponse, error) {
-	var budget pb.Transaction
-	filter := bson.M{"id": req.Id}
-	err := s.mongo.FindOne(context.TODO(), filter).Decode(&budget)
-	if err != nil {
+	var bsonAccount m.Transaction
+	err := s.mongo.FindOne(context.TODO(), bson.M{"_id": req.Id}).Decode(&bsonAccount)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("Transaction not found")
+	} else if err != nil {
 		return nil, err
 	}
-
-	var category pb.Category
-	categoryFilter := bson.M{"category_id": budget.CategoryId}
-	err = s.mongo.FindOne(context.TODO(), categoryFilter).Decode(&category)
-	if err != nil {
-		return nil, err
-	}
-
-	var account pb.Account
-	accountFilter := bson.M{"account_id": budget.AccountId}
-	err = s.mongo.FindOne(context.TODO(), accountFilter).Decode(&account)
-	if err != nil {
-		return nil, err
-	}
-
-	return &pb.GetTransactionResponse{
-		Transaction: &budget,
-		Category:    &category,
-		Account:     &account,
-	}, nil
+	return &pb.GetTransactionResponse{Transaction: e.BsonToTransaction(&bsonAccount)}, nil
 }
 
 func (s *Transaction) ListTransactions(req *pb.ListTransactionsRequest) (*pb.ListTransactionsResponse, error) {
 	limit := req.Limit
-	if limit == 0 {
-		limit = 10
-	}
-
 	page := req.Page
-	if page == 0 {
-		page = 1
-	}
+	skip := (page - 1) * limit
 
-	findOptions := options.Find().
-		SetLimit(int64(limit)).
-		SetSkip(int64((page - 1) * limit))
-
-	cursor, err := s.mongo.Find(context.TODO(), bson.M{}, findOptions)
+	cursor, err := s.mongo.Find(context.TODO(), bson.M{}, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)))
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(context.TODO())
 
-	var budgets []*pb.GetTransactionResponse
+	var accounts []*pb.Transaction
 	for cursor.Next(context.TODO()) {
-		var budget pb.Transaction
-		if err := cursor.Decode(&budget); err != nil {
+		var bsonAccount m.Transaction
+		if err := cursor.Decode(&bsonAccount); err != nil {
 			return nil, err
 		}
-		var category pb.Category
-		categoryFilter := bson.M{"category_id": budget.CategoryId}
-		err := s.mongo.FindOne(context.TODO(), categoryFilter).Decode(&category)
-		if err != nil {
-			return nil, err
-		}
-		var account pb.Account
-		accountFilter := bson.M{"account_id": budget.AccountId}
-		err = s.mongo.FindOne(context.TODO(), accountFilter).Decode(&account)
-		if err != nil {
+		account := e.BsonToTransaction(&bsonAccount)
+		accounts = append(accounts, account)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &pb.ListTransactionsResponse{
+		Transactions: accounts,
+	}, nil
+}
+
+func (s *Transaction) Spending(req *pb.SpendingRequest) (*pb.SpendingResponse, error) {
+	filter := bson.M{"user_id": req.UserId, "type": "expense"}
+
+	cursor, err := s.mongo.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var spendingCount int32
+	var spendingMoney float32
+
+	for cursor.Next(context.TODO()) {
+		var bsonTransaction m.Transaction
+		if err := cursor.Decode(&bsonTransaction); err != nil {
 			return nil, err
 		}
 
-		budgets = append(budgets, &pb.GetTransactionResponse{
-			Transaction:     &budget,
-			Category: &category,
-			Account: &account,
-		})
+		spendingCount++
+		spendingMoney += bsonTransaction.Amount
 	}
-	return &pb.ListTransactionsResponse{
-		Transactions: budgets,
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &pb.SpendingResponse{
+		SpendingCount: spendingCount,
+		SpendingMoney: spendingMoney,
+	}, nil
+}
+
+func (s *Transaction) Income(req *pb.IncomeRequest) (*pb.IncomeResponse, error) {
+	filter := bson.M{"user_id": req.UserId, "type": "income"}
+
+	cursor, err := s.mongo.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var incomeCount int32
+	var incomeMoney float32
+
+	for cursor.Next(context.TODO()) {
+		var bsonTransaction m.Transaction
+		if err := cursor.Decode(&bsonTransaction); err != nil {
+			return nil, err
+		}
+
+		incomeCount++
+		incomeMoney += bsonTransaction.Amount
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &pb.IncomeResponse{
+		IncomeCount: incomeCount,
+		IncomeMoney: incomeMoney,
 	}, nil
 }

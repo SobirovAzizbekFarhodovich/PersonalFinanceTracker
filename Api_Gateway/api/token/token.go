@@ -1,51 +1,147 @@
-package tokens
+package token
 
 import (
-	"errors"
-	"fmt"
-	"log"
+  "log"
+  "log/slog"
+  "net/http"
+  "strings"
+  "time"
 
-	"github.com/golang-jwt/jwt"
+  "github.com/golang-jwt/jwt"
+  "github.com/spf13/cast"
+  "api/config"
+  pb "api/genprotos/auth"
 )
 
-
-
-func VerifyToken(tokenString string) error {
-	secretKey := []byte("secret")
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	if !token.Valid {
-		return fmt.Errorf("invalid token")
-	}
-
-	return nil
+type JWTHandler struct {
+  Sub        string
+  Exp        string
+  Iat        string
+  Role       string
+  SigningKey string
+  Token      string
+  Timeout    int
 }
 
-func ExtractClaims(tokenStr, key string) (jwt.MapClaims, error) {
-	var (
-		token *jwt.Token
-		err   error
-	)
+type Tokens struct {
+  AccessToken  string
+  RefreshToken string
+}
 
-	keyFunc := func(token *jwt.Token) (interface{}, error) {
-		return []byte(key), nil
-	}
-	token, err = jwt.Parse(tokenStr, keyFunc)
-	log.Println("token : ",err)
-	if err != nil {
-		return nil, err
-	}
+var tokenKey = config.Load().TokenKey
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !(ok && token.Valid) {
-		return nil, errors.New("invalid token")
-	}
+func GenereteJWTToken(user *pb.LoginUserResponse) *Tokens {
+  accessToken := jwt.New(jwt.SigningMethodHS256)
+  refreshToken := jwt.New(jwt.SigningMethodHS256)
 
-	return claims, nil
+  claims := accessToken.Claims.(jwt.MapClaims)
+  claims["id"] = user.Id
+  claims["email"] = user.Email
+  claims["first_name"] = user.FirstName
+  claims["last_name"] = user.LastName
+  claims["password_hash"] = user.PasswordHash
+  claims["iat"] = time.Now().Unix()
+  claims["exp"] = time.Now().Add(60 * time.Minute).Unix()
+  access, err := accessToken.SignedString([]byte(tokenKey))
+  if err != nil {
+    log.Fatal("error while genereting access token : ", err)
+  }
+
+  rftclaims := refreshToken.Claims.(jwt.MapClaims)
+  rftclaims["id"] = user.Id
+  rftclaims["email"] = user.Email
+  rftclaims["first_name"] = user.FirstName
+  rftclaims["last_name"] = user.LastName
+  rftclaims["password_hash"] = user.PasswordHash
+  rftclaims["iat"] = time.Now().Unix()
+  rftclaims["exp"] = time.Now().Add(60 * time.Minute).Unix()
+  refresh, err := refreshToken.SignedString([]byte(tokenKey))
+  if err != nil {
+    log.Fatal("error while genereting refresh token : ", err)
+  }
+
+  return &Tokens{
+    AccessToken:  access,
+    RefreshToken: refresh,
+  }
+}
+
+func ExtractClaim(cfg *config.Config, tokenStr string) (jwt.MapClaims, error) {
+  var (
+    token *jwt.Token
+    err   error
+  )
+
+  keyFunc := func(token *jwt.Token) (interface{}, error) {
+    return []byte(cfg.TokenKey), nil
+  }
+
+  token, err = jwt.Parse(tokenStr, keyFunc)
+  if err != nil {
+    return nil, err
+  }
+
+  claims, ok := token.Claims.(jwt.MapClaims)
+  if !(ok && token.Valid) {
+    return nil, err
+  }
+
+  return claims, nil
+}
+
+func (jwtHandler *JWTHandler) ExtractClaims() (jwt.MapClaims, error) {
+  token, err := jwt.Parse(jwtHandler.Token, func(t *jwt.Token) (interface{}, error) {
+    return []byte(jwtHandler.SigningKey), nil
+  })
+
+  if err != nil {
+    return nil, err
+  }
+
+  claims, ok := token.Claims.(jwt.MapClaims)
+  if !(ok && token.Valid) {
+    slog.Error("invalid jwt token")
+    return nil, err
+  }
+  return claims, nil
+}
+
+func GetIdFromToken(r *http.Request, cfg *config.Config) (string, int) {
+  var softToken string
+  token := r.Header.Get("Authorization")
+
+  if token == "" {
+    return "unauthorized", http.StatusUnauthorized
+  } else if strings.Contains(token, "Bearer") {
+    softToken = strings.TrimPrefix(token, "Bearer ")
+  } else {
+    softToken = token
+  }
+
+  claims, err := ExtractClaim(cfg, softToken)
+  if err != nil {
+    return "unauthorized", http.StatusUnauthorized
+  }
+
+  return cast.ToString(claims["id"]), 0
+}
+
+func GetEmailFromToken(r *http.Request, cfg *config.Config) (string, int) {
+  var softToken string
+  token := r.Header.Get("Authorization")
+
+  if token == "" {
+    return "unauthorized", http.StatusUnauthorized
+  } else if strings.Contains(token, "Bearer") {
+    softToken = strings.TrimPrefix(token, "Bearer ")
+  } else {
+    softToken = token
+  }
+
+  claims, err := ExtractClaim(cfg, softToken)
+  if err != nil {
+    return "unauthorized", http.StatusUnauthorized
+  }
+
+  return cast.ToString(claims["email"]), 0
 }

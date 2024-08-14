@@ -109,7 +109,7 @@ func (h *BudgetingHandler) GetCategory(ctx *gin.Context) {
 
 // @Summary ListCategories
 // @Description ListCategories
-// @Tags Budget
+// @Tags Category
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -117,7 +117,7 @@ func (h *BudgetingHandler) GetCategory(ctx *gin.Context) {
 // @Param page query int false "Page"
 // @Success 200 {object} pb.ListCategoriesResponse
 // @Failure 400 {string} string "Bad Request"
-// @Router /budget/get [get]
+// @Router /category/get [get]
 func (h *BudgetingHandler) ListCategories(ctx *gin.Context) {
 	defaultLimit := 10
 	defaultPage := 1

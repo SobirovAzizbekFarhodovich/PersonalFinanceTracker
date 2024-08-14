@@ -118,3 +118,20 @@ func BsonToTransaction(b *m.Transaction) *pb.Transaction {
 		Date:        b.Date,
 	}
 }
+
+
+func BsonToNotification(b *m.Notification) *pb.Notification{
+	return &pb.Notification{
+		Id: b.ID,
+		UserId: b.UserID,
+		Message: b.Message,
+	}
+}
+
+func NotificationToBson(p *pb.Notification) *m.Notification{
+	return &m.Notification{
+		ID: p.Id,
+		UserID: p.UserId,
+		Message: p.Message,
+	}
+}

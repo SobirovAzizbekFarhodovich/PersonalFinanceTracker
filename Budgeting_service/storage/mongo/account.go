@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	e "budgeting/extra"
 	pb "budgeting/genprotos"
@@ -10,6 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Account struct {
@@ -54,7 +56,7 @@ func (s *Account) GetAccount(req *pb.GetAccountRequest) (*pb.GetAccountResponse,
 	var bsonAccount m.Account
 	err := s.mongo.FindOne(context.TODO(), bson.M{"_id": req.Id}).Decode(&bsonAccount)
 	if err == mongo.ErrNoDocuments {
-		return nil, errors.New("progress not found")
+		return nil, errors.New("Account not found")
 	} else if err != nil {
 		return nil, err
 	}
@@ -66,20 +68,7 @@ func (s *Account) ListAccounts(req *pb.ListAccountsRequest) (*pb.ListAccountsRes
 	page := req.Page
 	skip := (page - 1) * limit
 
-	pipeline := []bson.M{
-		{"$skip": skip},
-		{"$limit": limit},
-		{"$project": bson.M{
-			"_id":      0,
-			"user_id":  1,
-			"name":     1,
-			"type":     1,
-			"balance":  1,
-			"currency": 1,
-		}},
-	}
-
-	cursor, err := s.mongo.Aggregate(context.TODO(), pipeline)
+	cursor, err := s.mongo.Find(context.TODO(), bson.M{}, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)))
 	if err != nil {
 		return nil, err
 	}
@@ -87,14 +76,54 @@ func (s *Account) ListAccounts(req *pb.ListAccountsRequest) (*pb.ListAccountsRes
 
 	var accounts []*pb.Account
 	for cursor.Next(context.TODO()) {
-		var account pb.Account
-		if err := cursor.Decode(&account); err != nil {
+		var bsonAccount m.Account
+		if err := cursor.Decode(&bsonAccount); err != nil {
 			return nil, err
 		}
-		accounts = append(accounts, &account)
+		account := e.BsonToAccount(&bsonAccount)
+		accounts = append(accounts, account)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
 	return &pb.ListAccountsResponse{
 		Accounts: accounts,
 	}, nil
+}
+
+func (s *Account) GetAmount(req *pb.GetAmountRequest) (*pb.GetAmountResponse, error) {
+	filter := bson.M{"user_id": req.UserId}
+
+	var account m.Account
+
+	err := s.mongo.FindOne(context.TODO(), filter).Decode(&account)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("account not found")
+	} else if err != nil {
+		return nil, err
+	}
+	return &pb.GetAmountResponse{
+		Balance: account.Balance,
+	}, nil
+}
+
+func (s *Account) UpdateAmount(req *pb.UpdateAmountRequest) (*pb.UpdateAmountResponse, error) {
+	filter := bson.M{"user_id": req.UserId}
+	update := bson.M{
+		"$set": bson.M{
+			"balance": req.Balance,
+		},
+	}
+
+	_, err := s.mongo.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("account not found")
+		}
+		return nil, err
+	}
+
+	return &pb.UpdateAmountResponse{}, nil
 }

@@ -27,6 +27,8 @@ type AccountServiceClient interface {
 	DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error)
 	GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error)
 	ListAccounts(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error)
+	GetAmount(ctx context.Context, in *GetAmountRequest, opts ...grpc.CallOption) (*GetAmountResponse, error)
+	UpdateAmount(ctx context.Context, in *UpdateAmountRequest, opts ...grpc.CallOption) (*UpdateAmountResponse, error)
 }
 
 type accountServiceClient struct {
@@ -82,6 +84,24 @@ func (c *accountServiceClient) ListAccounts(ctx context.Context, in *ListAccount
 	return out, nil
 }
 
+func (c *accountServiceClient) GetAmount(ctx context.Context, in *GetAmountRequest, opts ...grpc.CallOption) (*GetAmountResponse, error) {
+	out := new(GetAmountResponse)
+	err := c.cc.Invoke(ctx, "/account.AccountService/GetAmount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountServiceClient) UpdateAmount(ctx context.Context, in *UpdateAmountRequest, opts ...grpc.CallOption) (*UpdateAmountResponse, error) {
+	out := new(UpdateAmountResponse)
+	err := c.cc.Invoke(ctx, "/account.AccountService/UpdateAmount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountServiceServer is the server API for AccountService service.
 // All implementations must embed UnimplementedAccountServiceServer
 // for forward compatibility
@@ -91,6 +111,8 @@ type AccountServiceServer interface {
 	DeleteAccount(context.Context, *DeleteAccountRequest) (*DeleteAccountResponse, error)
 	GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error)
 	ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error)
+	GetAmount(context.Context, *GetAmountRequest) (*GetAmountResponse, error)
+	UpdateAmount(context.Context, *UpdateAmountRequest) (*UpdateAmountResponse, error)
 	mustEmbedUnimplementedAccountServiceServer()
 }
 
@@ -112,6 +134,12 @@ func (UnimplementedAccountServiceServer) GetAccount(context.Context, *GetAccount
 }
 func (UnimplementedAccountServiceServer) ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAccounts not implemented")
+}
+func (UnimplementedAccountServiceServer) GetAmount(context.Context, *GetAmountRequest) (*GetAmountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAmount not implemented")
+}
+func (UnimplementedAccountServiceServer) UpdateAmount(context.Context, *UpdateAmountRequest) (*UpdateAmountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAmount not implemented")
 }
 func (UnimplementedAccountServiceServer) mustEmbedUnimplementedAccountServiceServer() {}
 
@@ -216,6 +244,42 @@ func _AccountService_ListAccounts_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AccountService_GetAmount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAmountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServiceServer).GetAmount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/account.AccountService/GetAmount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServiceServer).GetAmount(ctx, req.(*GetAmountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccountService_UpdateAmount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAmountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServiceServer).UpdateAmount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/account.AccountService/UpdateAmount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServiceServer).UpdateAmount(ctx, req.(*UpdateAmountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AccountService_ServiceDesc is the grpc.ServiceDesc for AccountService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +306,14 @@ var AccountService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAccounts",
 			Handler:    _AccountService_ListAccounts_Handler,
+		},
+		{
+			MethodName: "GetAmount",
+			Handler:    _AccountService_GetAmount_Handler,
+		},
+		{
+			MethodName: "UpdateAmount",
+			Handler:    _AccountService_UpdateAmount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

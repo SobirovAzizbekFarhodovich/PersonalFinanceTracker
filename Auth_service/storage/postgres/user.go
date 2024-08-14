@@ -62,6 +62,7 @@ func (u *UserStorage) LoginUser(user *pb.LoginUserRequest) (*pb.LoginUserRespons
 		}
 		return nil, err
 	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(res.PasswordHash), []byte(user.PasswordHash))
 	if err != nil {
 		return nil, fmt.Errorf("invalid email or password")

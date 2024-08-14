@@ -334,7 +334,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "ListCategories",
+                "description": "ListBudgets",
                 "consumes": [
                     "application/json"
                 ],
@@ -344,7 +344,7 @@ const docTemplate = `{
                 "tags": [
                     "Budget"
                 ],
-                "summary": "ListCategories",
+                "summary": "ListBudgets",
                 "parameters": [
                     {
                         "type": "integer",
@@ -363,7 +363,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/genprotos.ListCategoriesResponse"
+                            "$ref": "#/definitions/genprotos.ListBudgetsResponse"
                         }
                     },
                     "400": {
@@ -463,6 +463,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/budget/{id}/performance-report": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate a performance report for a specific budget. If the spent amount exceeds the budget amount, a notification will be created.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budget"
+                ],
+                "summary": "Generate Budget Performance Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Budget ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genprotos.GenerateBudgetPerformanceReportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to generate budget performance report",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Notification not created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/category/create": {
             "post": {
                 "security": [
@@ -544,6 +593,54 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/get": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ListCategories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "ListCategories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genprotos.ListCategoriesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "string"
                         }
@@ -734,7 +831,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "ListGoals",
+                "description": "List all goals with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -744,7 +841,7 @@ const docTemplate = `{
                 "tags": [
                     "Goal"
                 ],
-                "summary": "ListGoals",
+                "summary": "List Goals",
                 "parameters": [
                     {
                         "type": "integer",
@@ -818,6 +915,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/goal/getprogress/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate a progress report for a specific goal by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Goal"
+                ],
+                "summary": "Generate Goal Progress Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genprotos.GenerateGoalProgressReportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/goal/update": {
             "put": {
                 "security": [
@@ -856,6 +996,54 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/get": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ListNotifications",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "ListNotifications",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genprotos.GetNotificationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "string"
                         }
@@ -915,7 +1103,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete Transaction",
+                "description": "Delete a transaction and revert the user's balance accordingly",
                 "consumes": [
                     "application/json"
                 ],
@@ -1035,6 +1223,94 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/income": {
+            "get": {
+                "description": "Get the count of income transactions and the total amount received.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Get income details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genprotos.IncomeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/spending": {
+            "get": {
+                "description": "Get the count of spending transactions and the total amount spent.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Get spending details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genprotos.SpendingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
                         "schema": {
                             "type": "string"
                         }
@@ -1195,6 +1471,61 @@ const docTemplate = `{
                 }
             }
         },
+        "genprotos.GenerateBudgetPerformanceReportResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "period": {
+                    "type": "string"
+                },
+                "spent_amount": {
+                    "type": "number"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "genprotos.GenerateGoalProgressReportResponse": {
+            "type": "object",
+            "properties": {
+                "current_amount": {
+                    "type": "number"
+                },
+                "deadline": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remain_amount": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "target_amount": {
+                    "type": "number"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "genprotos.GetAccountResponse": {
             "type": "object",
             "properties": {
@@ -1208,9 +1539,6 @@ const docTemplate = `{
             "properties": {
                 "budget": {
                     "$ref": "#/definitions/genprotos.Budget"
-                },
-                "categories": {
-                    "$ref": "#/definitions/genprotos.Category"
                 }
             }
         },
@@ -1230,15 +1558,20 @@ const docTemplate = `{
                 }
             }
         },
+        "genprotos.GetNotificationResponse": {
+            "type": "object",
+            "properties": {
+                "notification": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/genprotos.Notification"
+                    }
+                }
+            }
+        },
         "genprotos.GetTransactionResponse": {
             "type": "object",
             "properties": {
-                "account": {
-                    "$ref": "#/definitions/genprotos.Account"
-                },
-                "category": {
-                    "$ref": "#/definitions/genprotos.Category"
-                },
                 "transaction": {
                     "$ref": "#/definitions/genprotos.Transaction"
                 }
@@ -1270,6 +1603,17 @@ const docTemplate = `{
                 }
             }
         },
+        "genprotos.IncomeResponse": {
+            "type": "object",
+            "properties": {
+                "income_count": {
+                    "type": "integer"
+                },
+                "income_money": {
+                    "type": "number"
+                }
+            }
+        },
         "genprotos.ListAccountsResponse": {
             "type": "object",
             "properties": {
@@ -1287,7 +1631,7 @@ const docTemplate = `{
                 "budgets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/genprotos.GetBudgetResponse"
+                        "$ref": "#/definitions/genprotos.Budget"
                     }
                 }
             }
@@ -1320,8 +1664,33 @@ const docTemplate = `{
                 "transactions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/genprotos.GetTransactionResponse"
+                        "$ref": "#/definitions/genprotos.Transaction"
                     }
+                }
+            }
+        },
+        "genprotos.Notification": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "genprotos.SpendingResponse": {
+            "type": "object",
+            "properties": {
+                "spending_count": {
+                    "type": "integer"
+                },
+                "spending_money": {
+                    "type": "number"
                 }
             }
         },

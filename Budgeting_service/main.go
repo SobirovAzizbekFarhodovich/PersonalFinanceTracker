@@ -27,6 +27,7 @@ func main(){
 	pb.RegisterCategoryServiceServer(s, service.NewCategoryService(&db))
 	pb.RegisterGoalServiceServer(s, service.NewGoalService(&db))
 	pb.RegisterTransactionServiceServer(s, service.NewTransactionService(&db))
+	pb.RegisterNotificationServiceServer(s, service.NewNotificationService(&db))
 
 
 	log.Printf("server listening at %v", liss.Addr())

@@ -4,14 +4,13 @@ option go_package = "genprotos/";
 
 package budget;
 
-import "category.proto";
-
 service BudgetService {
     rpc CreateBudget(CreateBudgetRequest) returns(CreateBudgetResponse){}
     rpc UpdateBudget(UpdateBudgetRequest) returns(UpdateBudgetResponse){}
     rpc DeleteBudget(DeleteBudgetRequest) returns(DeleteBudgetResponse){}
     rpc GetBudget(GetBudgetRequest)returns(GetBudgetResponse){}
     rpc ListBudgets(ListBudgetsRequest) returns(ListBudgetsResponse){}
+    rpc GenerateBudgetPerformanceReport(GenerateBudgetPerformanceReportRequest)returns(GenerateBudgetPerformanceReportResponse){}
 }
 
 message CreateBudgetRequest{
@@ -43,7 +42,6 @@ message GetBudgetRequest{
 
 message GetBudgetResponse{
     Budget budget = 1;
-    category.Category categories = 2;
 }
 
 message DeleteBudgetRequest{
@@ -58,5 +56,19 @@ message ListBudgetsRequest{
 }
 
 message ListBudgetsResponse{
-    repeated GetBudgetResponse budgets = 1;
+    repeated Budget budgets = 1;
+}
+
+message GenerateBudgetPerformanceReportRequest{
+    string id = 1;
+}
+message GenerateBudgetPerformanceReportResponse{
+    string id = 1;
+    string user_id = 2;
+    string category_id = 3;
+    float amount = 4;
+    string period = 5;
+    string start_date = 6;
+    string end_date = 7;
+    float spent_amount = 8;
 }

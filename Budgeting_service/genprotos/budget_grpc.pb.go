@@ -27,6 +27,7 @@ type BudgetServiceClient interface {
 	DeleteBudget(ctx context.Context, in *DeleteBudgetRequest, opts ...grpc.CallOption) (*DeleteBudgetResponse, error)
 	GetBudget(ctx context.Context, in *GetBudgetRequest, opts ...grpc.CallOption) (*GetBudgetResponse, error)
 	ListBudgets(ctx context.Context, in *ListBudgetsRequest, opts ...grpc.CallOption) (*ListBudgetsResponse, error)
+	GenerateBudgetPerformanceReport(ctx context.Context, in *GenerateBudgetPerformanceReportRequest, opts ...grpc.CallOption) (*GenerateBudgetPerformanceReportResponse, error)
 }
 
 type budgetServiceClient struct {
@@ -82,6 +83,15 @@ func (c *budgetServiceClient) ListBudgets(ctx context.Context, in *ListBudgetsRe
 	return out, nil
 }
 
+func (c *budgetServiceClient) GenerateBudgetPerformanceReport(ctx context.Context, in *GenerateBudgetPerformanceReportRequest, opts ...grpc.CallOption) (*GenerateBudgetPerformanceReportResponse, error) {
+	out := new(GenerateBudgetPerformanceReportResponse)
+	err := c.cc.Invoke(ctx, "/budget.BudgetService/GenerateBudgetPerformanceReport", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BudgetServiceServer is the server API for BudgetService service.
 // All implementations must embed UnimplementedBudgetServiceServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type BudgetServiceServer interface {
 	DeleteBudget(context.Context, *DeleteBudgetRequest) (*DeleteBudgetResponse, error)
 	GetBudget(context.Context, *GetBudgetRequest) (*GetBudgetResponse, error)
 	ListBudgets(context.Context, *ListBudgetsRequest) (*ListBudgetsResponse, error)
+	GenerateBudgetPerformanceReport(context.Context, *GenerateBudgetPerformanceReportRequest) (*GenerateBudgetPerformanceReportResponse, error)
 	mustEmbedUnimplementedBudgetServiceServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedBudgetServiceServer) GetBudget(context.Context, *GetBudgetReq
 }
 func (UnimplementedBudgetServiceServer) ListBudgets(context.Context, *ListBudgetsRequest) (*ListBudgetsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListBudgets not implemented")
+}
+func (UnimplementedBudgetServiceServer) GenerateBudgetPerformanceReport(context.Context, *GenerateBudgetPerformanceReportRequest) (*GenerateBudgetPerformanceReportResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateBudgetPerformanceReport not implemented")
 }
 func (UnimplementedBudgetServiceServer) mustEmbedUnimplementedBudgetServiceServer() {}
 
@@ -216,6 +230,24 @@ func _BudgetService_ListBudgets_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BudgetService_GenerateBudgetPerformanceReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateBudgetPerformanceReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BudgetServiceServer).GenerateBudgetPerformanceReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/budget.BudgetService/GenerateBudgetPerformanceReport",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BudgetServiceServer).GenerateBudgetPerformanceReport(ctx, req.(*GenerateBudgetPerformanceReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BudgetService_ServiceDesc is the grpc.ServiceDesc for BudgetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var BudgetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListBudgets",
 			Handler:    _BudgetService_ListBudgets_Handler,
+		},
+		{
+			MethodName: "GenerateBudgetPerformanceReport",
+			Handler:    _BudgetService_GenerateBudgetPerformanceReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

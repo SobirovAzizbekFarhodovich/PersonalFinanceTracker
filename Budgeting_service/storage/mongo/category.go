@@ -10,6 +10,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Category struct {
@@ -67,19 +68,7 @@ func (s *Category) ListCategories(req *pb.ListCategoriesRequest) (*pb.ListCatego
 	page := req.Page
 	skip := (page - 1) * limit
 
-	pipeline := []bson.M{
-		{"$skip": skip},
-		{"$limit": limit},
-		{"$project": bson.M{
-			"_id":      0,
-			"user_id":  1,
-			"name":     1,
-			"type":     1,
-
-		}},
-	}
-
-	cursor, err := s.mongo.Aggregate(context.TODO(), pipeline)
+	cursor, err := s.mongo.Find(context.TODO(), bson.M{}, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)))
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +76,16 @@ func (s *Category) ListCategories(req *pb.ListCategoriesRequest) (*pb.ListCatego
 
 	var accounts []*pb.Category
 	for cursor.Next(context.TODO()) {
-		var account pb.Category
-		if err := cursor.Decode(&account); err != nil {
+		var bsonAccount m.Category
+		if err := cursor.Decode(&bsonAccount); err != nil {
 			return nil, err
 		}
-		accounts = append(accounts, &account)
+		account := e.BsonToCategory(&bsonAccount)
+		accounts = append(accounts, account)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
 	return &pb.ListCategoriesResponse{

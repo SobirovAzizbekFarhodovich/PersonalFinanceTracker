@@ -27,6 +27,8 @@ type TransactionServiceClient interface {
 	DeleteTransaction(ctx context.Context, in *DeleteTransactionRequest, opts ...grpc.CallOption) (*DeleteTransactionResponse, error)
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*GetTransactionResponse, error)
 	ListTransactions(ctx context.Context, in *ListTransactionsRequest, opts ...grpc.CallOption) (*ListTransactionsResponse, error)
+	Spending(ctx context.Context, in *SpendingRequest, opts ...grpc.CallOption) (*SpendingResponse, error)
+	Income(ctx context.Context, in *IncomeRequest, opts ...grpc.CallOption) (*IncomeResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -82,6 +84,24 @@ func (c *transactionServiceClient) ListTransactions(ctx context.Context, in *Lis
 	return out, nil
 }
 
+func (c *transactionServiceClient) Spending(ctx context.Context, in *SpendingRequest, opts ...grpc.CallOption) (*SpendingResponse, error) {
+	out := new(SpendingResponse)
+	err := c.cc.Invoke(ctx, "/transaction.TransactionService/Spending", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionServiceClient) Income(ctx context.Context, in *IncomeRequest, opts ...grpc.CallOption) (*IncomeResponse, error) {
+	out := new(IncomeResponse)
+	err := c.cc.Invoke(ctx, "/transaction.TransactionService/Income", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionServiceServer is the server API for TransactionService service.
 // All implementations must embed UnimplementedTransactionServiceServer
 // for forward compatibility
@@ -91,6 +111,8 @@ type TransactionServiceServer interface {
 	DeleteTransaction(context.Context, *DeleteTransactionRequest) (*DeleteTransactionResponse, error)
 	GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error)
 	ListTransactions(context.Context, *ListTransactionsRequest) (*ListTransactionsResponse, error)
+	Spending(context.Context, *SpendingRequest) (*SpendingResponse, error)
+	Income(context.Context, *IncomeRequest) (*IncomeResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -112,6 +134,12 @@ func (UnimplementedTransactionServiceServer) GetTransaction(context.Context, *Ge
 }
 func (UnimplementedTransactionServiceServer) ListTransactions(context.Context, *ListTransactionsRequest) (*ListTransactionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTransactions not implemented")
+}
+func (UnimplementedTransactionServiceServer) Spending(context.Context, *SpendingRequest) (*SpendingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Spending not implemented")
+}
+func (UnimplementedTransactionServiceServer) Income(context.Context, *IncomeRequest) (*IncomeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Income not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -216,6 +244,42 @@ func _TransactionService_ListTransactions_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionService_Spending_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SpendingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).Spending(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/transaction.TransactionService/Spending",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).Spending(ctx, req.(*SpendingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TransactionService_Income_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IncomeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).Income(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/transaction.TransactionService/Income",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).Income(ctx, req.(*IncomeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransactionService_ServiceDesc is the grpc.ServiceDesc for TransactionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +306,14 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListTransactions",
 			Handler:    _TransactionService_ListTransactions_Handler,
+		},
+		{
+			MethodName: "Spending",
+			Handler:    _TransactionService_Spending_Handler,
+		},
+		{
+			MethodName: "Income",
+			Handler:    _TransactionService_Income_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

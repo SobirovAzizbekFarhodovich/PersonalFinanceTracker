@@ -10,6 +10,8 @@ service AccountService {
     rpc DeleteAccount(DeleteAccountRequest) returns(DeleteAccountResponse){}
     rpc GetAccount(GetAccountRequest)returns(GetAccountResponse){}
     rpc ListAccounts(ListAccountsRequest) returns(ListAccountsResponse){}
+    rpc GetAmount(GetAmountRequest) returns(GetAmountResponse){}
+    rpc UpdateAmount(UpdateAmountRequest)returns(UpdateAmountResponse){}
 }
 
 message CreateAccountRequest{
@@ -55,4 +57,21 @@ message ListAccountsRequest{
 
 message ListAccountsResponse{
     repeated Account accounts = 1;
+}
+
+message GetAmountRequest{
+    string user_id = 1;
+}
+
+message GetAmountResponse{
+    float balance = 1;
+}
+
+message UpdateAmountRequest{
+    string user_id = 1;
+    float balance = 2;
+}
+
+message UpdateAmountResponse{
+    
 }

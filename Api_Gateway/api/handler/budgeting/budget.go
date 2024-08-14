@@ -3,10 +3,12 @@ package handler
 import (
 	pb "api/genprotos/budgeting"
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // @Summary Create Budget
@@ -147,4 +149,69 @@ func (h *BudgetingHandler) ListBudgets(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, res)
+}
+
+// @Summary Generate Budget Performance Report
+// @Description Generate a performance report for a specific budget. If the spent amount exceeds the budget amount, a notification will be created.
+// @Tags Budget
+// @Accept json
+// @Produce json
+// @Param id path string true "Budget ID"
+// @Security BearerAuth
+// @Success 200 {object} pb.GenerateBudgetPerformanceReportResponse
+// @Failure 400 {string} string "Failed to generate budget performance report"
+// @Failure 500 {string} string "Notification not created"
+// @Router /budget/{id}/performance-report [get]
+func (h *BudgetingHandler) GenerateBudgetPerformanceReport(ctx *gin.Context) {
+    id := ctx.Param("id")
+    req := &pb.GenerateBudgetPerformanceReportRequest{Id: id}
+
+    res, err := h.Budget.GenerateBudgetPerformanceReport(context.Background(), req)
+    if err != nil {
+        ctx.JSON(400, gin.H{"error": "Failed to generate budget performance report"})
+        return
+    }
+
+    transactionRes, err := h.Transaction.ListTransactions(context.Background(), &pb.ListTransactionsRequest{})
+    if err != nil {
+        ctx.JSON(400, gin.H{"error": "Failed to retrieve transactions"})
+        return
+    }
+
+    var spentAmount float32 = 0
+    for _, transaction := range transactionRes.Transactions {
+        if transaction.Type == "expense" {
+            spentAmount += transaction.Amount
+        }
+    }
+
+    resp := &pb.GenerateBudgetPerformanceReportResponse{
+        Id:          res.Id,
+        UserId:      res.UserId,
+        CategoryId:  res.CategoryId,
+        Amount:      res.Amount,
+        Period:      res.Period,
+        StartDate:   res.StartDate,
+        EndDate:     res.EndDate,
+        SpentAmount: spentAmount,
+    }
+
+    if spentAmount >= res.Amount {
+        message := fmt.Sprintf("You have exceeded your budget by spending %.2f sum.", spentAmount)
+        notificationReq := &pb.CreateNotificationRequest{
+            Notification: &pb.Notification{
+                Id:      uuid.NewString(),
+                UserId:  res.UserId,
+                Message: message,
+            },
+        }
+
+        _, err := h.Notification.CreateNotification(context.Background(), notificationReq)
+        if err != nil {
+            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Notification not created", "details": err.Error()})
+            return
+        }
+    }
+
+    ctx.JSON(http.StatusOK, resp)
 }

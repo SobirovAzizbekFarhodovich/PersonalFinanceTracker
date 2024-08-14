@@ -15,6 +15,7 @@ type Storage struct {
 	CategoryS    storage.CategoryI
 	GoalS        storage.GoalI
 	TransactionS storage.TransactionI
+	NotificationS storage.NotificationI
 }
 
 func ConnectMongo() (storage.StorageI, error) {
@@ -35,6 +36,7 @@ func ConnectMongo() (storage.StorageI, error) {
 	categoryS := NewCategory(db)
 	goalS := NewGoal(db)
 	transaction := NewTransaction(db)
+	notificationS := NewNotification(db)
 
 	return &Storage{
 		DB:        db,
@@ -43,6 +45,7 @@ func ConnectMongo() (storage.StorageI, error) {
 		CategoryS: categoryS,
 		GoalS: goalS,
 		TransactionS: transaction,
+		NotificationS: notificationS,
 	}, nil
 }
 
@@ -79,4 +82,11 @@ func (s *Storage) Transaction() storage.TransactionI{
 		s.TransactionS = NewTransaction(s.DB)
 	}
 	return s.TransactionS
+}
+
+func (s *Storage) Notification() storage.NotificationI{
+	if s.NotificationS == nil{
+		s.NotificationS = NewNotification(s.DB)
+	}
+	return s.NotificationS
 }

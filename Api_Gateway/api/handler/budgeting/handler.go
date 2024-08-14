@@ -7,11 +7,12 @@ import (
 )
 
 type BudgetingHandler struct {
-	Account     budgeting.AccountServiceClient
-	Budget      budgeting.BudgetServiceClient
-	Category    budgeting.CategoryServiceClient
-	Goal        budgeting.GoalServiceClient
-	Transaction budgeting.TransactionServiceClient
+	Account      budgeting.AccountServiceClient
+	Budget       budgeting.BudgetServiceClient
+	Category     budgeting.CategoryServiceClient
+	Goal         budgeting.GoalServiceClient
+	Transaction  budgeting.TransactionServiceClient
+	Notification budgeting.NotificationServiceClient
 }
 
 func NewBudgetingHandler(budgetingConn *grpc.ClientConn) *BudgetingHandler {
@@ -21,5 +22,6 @@ func NewBudgetingHandler(budgetingConn *grpc.ClientConn) *BudgetingHandler {
 		Category:    budgeting.NewCategoryServiceClient(budgetingConn),
 		Goal:        budgeting.NewGoalServiceClient(budgetingConn),
 		Transaction: budgeting.NewTransactionServiceClient(budgetingConn),
+		Notification: budgeting.NewNotificationServiceClient(budgetingConn),
 	}
 }

@@ -10,6 +10,7 @@ type StorageI interface {
 	Category() CategoryI
 	Goal() GoalI
 	Transaction() TransactionI
+	Notification() NotificationI
 }
 
 type AccountI interface{
@@ -18,6 +19,8 @@ type AccountI interface{
 	DeleteAccount(req *pb.DeleteAccountRequest) (*pb.DeleteAccountResponse, error)
 	GetAccount(req *pb.GetAccountRequest) (*pb.GetAccountResponse, error)
 	ListAccounts(req *pb.ListAccountsRequest) (*pb.ListAccountsResponse, error)
+	GetAmount(req *pb.GetAmountRequest) (*pb.GetAmountResponse, error)
+	UpdateAmount(req *pb.UpdateAmountRequest) (*pb.UpdateAmountResponse, error)
 }
 
 type BudgetI interface{
@@ -26,6 +29,7 @@ type BudgetI interface{
 	DeleteBudget(req *pb.DeleteBudgetRequest) (*pb.DeleteBudgetResponse, error)
 	GetBudget(req *pb.GetBudgetRequest) (*pb.GetBudgetResponse, error)
 	ListBudgets(req *pb.ListBudgetsRequest) (*pb.ListBudgetsResponse, error)
+	GenerateBudgetPerformanceReport(req *pb.GenerateBudgetPerformanceReportRequest) (*pb.GenerateBudgetPerformanceReportResponse, error)
 }
 
 type CategoryI interface{
@@ -52,4 +56,11 @@ type TransactionI interface {
 	DeleteTransaction(req *pb.DeleteTransactionRequest) (*pb.DeleteTransactionResponse, error)
 	GetTransaction(req *pb.GetTransactionRequest) (*pb.GetTransactionResponse, error)
 	ListTransactions(req *pb.ListTransactionsRequest) (*pb.ListTransactionsResponse, error)
+	Spending(req *pb.SpendingRequest) (*pb.SpendingResponse, error)
+	Income(req *pb.IncomeRequest) (*pb.IncomeResponse, error)
+}
+
+type NotificationI interface{
+	CreateNotification(req *pb.CreateNotificationRequest) (*pb.CreateNotificationResponse, error)
+	GetNotification(req *pb.GetNotificationRequest) (*pb.GetNotificationResponse, error)
 }

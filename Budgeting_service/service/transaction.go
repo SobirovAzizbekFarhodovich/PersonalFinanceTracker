@@ -58,3 +58,19 @@ func (s *TransactionService) ListTransactions(c context.Context,req *pb.ListTran
 	}
 	return res, nil
 }
+
+func (s *TransactionService) Spending(c context.Context,req *pb.SpendingRequest) (*pb.SpendingResponse, error){
+	res, err := s.stg.Transaction().Spending(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (s *TransactionService) Income(c context.Context,req *pb.IncomeRequest) (*pb.IncomeResponse, error){
+	res, err := s.stg.Transaction().Income(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}

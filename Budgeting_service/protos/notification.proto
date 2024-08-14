@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option go_package = "genprotos/";
+
+package notification;
+
+service NotificationService{
+    rpc CreateNotification(CreateNotificationRequest) returns(CreateNotificationResponse){}
+    rpc GetNotification(GetNotificationRequest) returns(GetNotificationResponse){}
+}
+
+message CreateNotificationRequest{
+    Notification notification = 1;
+}
+
+message CreateNotificationResponse{}
+
+message Notification{
+    string user_id = 1;
+    string id = 2;
+    string message = 3;
+}
+
+message GetNotificationRequest{
+    int32 limit = 1;
+    int32 page = 2;
+}
+
+message GetNotificationResponse{
+    repeated Notification notification = 1;
+}

@@ -4,8 +4,6 @@ option go_package = "genprotos/";
 
 package transaction;
 
-import "category.proto";
-import "account.proto";
 
 service TransactionService {
     rpc CreateTransaction(CreateTransactionRequest) returns(CreateTransactionResponse){}
@@ -13,6 +11,8 @@ service TransactionService {
     rpc DeleteTransaction(DeleteTransactionRequest) returns(DeleteTransactionResponse){}
     rpc GetTransaction(GetTransactionRequest)returns(GetTransactionResponse){}
     rpc ListTransactions(ListTransactionsRequest) returns(ListTransactionsResponse){}
+    rpc Spending(SpendingRequest)returns(SpendingResponse){}
+    rpc Income(IncomeRequest) returns(IncomeResponse){}
 }
 
 message CreateTransactionRequest{
@@ -45,8 +45,6 @@ message GetTransactionRequest{
 
 message GetTransactionResponse{
     Transaction transaction = 1;
-    category.Category category = 2;
-    account.Account account = 3;
 }
 
 message DeleteTransactionRequest{
@@ -61,5 +59,23 @@ message ListTransactionsRequest{
 }
 
 message ListTransactionsResponse{
-    repeated GetTransactionResponse transactions = 1;
+    repeated Transaction transactions = 1;
+}
+
+message SpendingRequest{
+    string user_id = 1;
+}
+
+message SpendingResponse{
+    int32 spending_count = 1;
+    float spending_money = 2;
+}
+
+message IncomeRequest{
+    string user_id = 1;
+}
+
+message IncomeResponse{
+    int32 income_count = 1;
+    float income_money = 2; 
 }

@@ -9,6 +9,7 @@
     p, user, /budget/delete/{id}, DELETE
     p, user, /budget/get, GET
     p, user, /budget/get/{id}, GET
+    p, admin, /budget/{id}/performance-report, GET
 
     p, user, /category/create, POST
     p, user, /category/update/{id}, PUT
@@ -21,9 +22,13 @@
     p, user, /goal/delete/{id}, DELETE
     p, user, /goal/get, GET
     p, user, /goal/get/{id}, GET
+    p, user, /goal/getprogress/{id}, GET
+
 
     p, user, /transaction/create, POST
     p, user, /transaction/update/{id}, PUT
     p, user, /transaction/delete/{id}, DELETE
     p, user, /transaction/get, GET
     p, user, /transaction/get/{id}, GET
+    p, user, /transaction/income, GET
+    p, user, /transaction/spending, GET
