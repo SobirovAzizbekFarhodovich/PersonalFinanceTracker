@@ -33,4 +33,13 @@
     p, user, /transaction/income, GET
     p, user, /transaction/spending, GET
 
+    p, unauthorized, /api/swagger/index.html, GET
+    p, unauthorized, /api/swagger/swagger-ui.css, GET
+    p, unauthorized, /api/swagger/swagger-ui-bundle.js, GET
+    p, unauthorized, /api/swagger/favicon-32x32.png, GET
+    p, unauthorized, /api/swagger/favicon-16x16.png, GET
+    p, unauthorized, /api/swagger/swagger-ui-standalone-preset.js, GET
+    p, unauthorized, /api/swagger/swagger/doc.json, GET
+    p, unauthorized, /api/swagger/doc.json, GET
+    p, unauthorized, /api/swagger/*any, GET
     g, admin, user
