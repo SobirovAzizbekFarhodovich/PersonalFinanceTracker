@@ -32,6 +32,7 @@
     p, user, /transaction/get/:id, GET
     p, user, /transaction/income, GET
     p, user, /transaction/spending, GET
+    p, user, /notification/get, GET
 
     p, unauthorized, /api/swagger/index.html, GET
     p, unauthorized, /api/swagger/swagger-ui.css, GET
