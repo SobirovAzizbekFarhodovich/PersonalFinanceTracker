@@ -33,6 +33,8 @@ definitions:
         type: string
       password_hash:
         type: string
+      role:
+        type: string
     type: object
   genprotos.UpdateUserRequest:
     properties:

@@ -40,6 +40,7 @@ func GenereteJWTToken(user *pb.LoginUserResponse) *Tokens {
   claims["first_name"] = user.FirstName
   claims["last_name"] = user.LastName
   claims["password_hash"] = user.PasswordHash
+  claims["role"] = user.Role
   claims["iat"] = time.Now().Unix()
   claims["exp"] = time.Now().Add(60 * time.Minute).Unix()
   access, err := accessToken.SignedString([]byte(tokenKey))
@@ -53,6 +54,7 @@ func GenereteJWTToken(user *pb.LoginUserResponse) *Tokens {
   rftclaims["first_name"] = user.FirstName
   rftclaims["last_name"] = user.LastName
   rftclaims["password_hash"] = user.PasswordHash
+  rftclaims["role"] = user.Role
   rftclaims["iat"] = time.Now().Unix()
   rftclaims["exp"] = time.Now().Add(60 * time.Minute).Unix()
   refresh, err := refreshToken.SignedString([]byte(tokenKey))

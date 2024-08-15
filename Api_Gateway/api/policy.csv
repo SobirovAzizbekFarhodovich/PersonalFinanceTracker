@@ -1,34 +1,36 @@
     p, user, /account/create, POST
-    p, user, /account/update/{id}, PUT
-    p, user, /account/delete/{id}, DELETE
+    p, user, /account/update/:id, PUT
+    p, user, /account/delete/:id, DELETE
     p, user, /account/get, GET
-    p, user, /account/get/{id}, GET
+    p, user, /account/get/:id, GET
 
     p, user, /budget/create, POST
-    p, user, /budget/update/{id}, PUT
-    p, user, /budget/delete/{id}, DELETE
+    p, user, /budget/update/:id, PUT
+    p, user, /budget/delete/:id, DELETE
     p, user, /budget/get, GET
-    p, user, /budget/get/{id}, GET
-    p, admin, /budget/{id}/performance-report, GET
+    p, user, /budget/get/:id, GET
+    p, user, /budget/:id/performance-report, GET
 
-    p, user, /category/create, POST
-    p, user, /category/update/{id}, PUT
-    p, user, /category/delete/{id}, DELETE
+    p, admin, /category/create, POST
+    p, admin, /category/update/:id, PUT
+    p, admin, /category/delete/:id, DELETE
     p, user, /category/get, GET
-    p, user, /category/get/{id}, GET
+    p, user, /category/get/:id, GET
 
     p, user, /goal/create, POST
-    p, user, /goal/update/{id}, PUT
-    p, user, /goal/delete/{id}, DELETE
+    p, user, /goal/update/:id, PUT
+    p, user, /goal/delete/:id, DELETE
     p, user, /goal/get, GET
-    p, user, /goal/get/{id}, GET
-    p, user, /goal/getprogress/{id}, GET
+    p, user, /goal/get/:id, GET
+    p, user, /goal/getprogress/:id, GET
 
 
     p, user, /transaction/create, POST
-    p, user, /transaction/update/{id}, PUT
-    p, user, /transaction/delete/{id}, DELETE
+    p, user, /transaction/update/:id, PUT
+    p, user, /transaction/delete/:id, DELETE
     p, user, /transaction/get, GET
-    p, user, /transaction/get/{id}, GET
+    p, user, /transaction/get/:id, GET
     p, user, /transaction/income, GET
     p, user, /transaction/spending, GET
+
+    g, admin, user

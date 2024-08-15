@@ -29,6 +29,7 @@ message RegisterUserRequest{
     string password_hash = 2;
     string first_name = 3;
     string last_name = 4; 
+    string role = 5;
 }
 
 message RegisterUserResponse{}
@@ -44,6 +45,7 @@ message LoginUserResponse{
     string password_hash = 3;
     string first_name = 4;
     string last_name = 5;
+    string role = 6;
 }
 
 message GetByIdUserRequest{

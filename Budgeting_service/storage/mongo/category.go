@@ -56,7 +56,7 @@ func (s *Category) GetCategory(req *pb.GetCategoryRequest) (*pb.GetCategoryRespo
 	var bsonAccount m.Category
 	err := s.mongo.FindOne(context.TODO(), bson.M{"_id": req.Id}).Decode(&bsonAccount)
 	if err == mongo.ErrNoDocuments {
-		return nil, errors.New("progress not found")
+		return nil, errors.New("category not found")
 	} else if err != nil {
 		return nil, err
 	}

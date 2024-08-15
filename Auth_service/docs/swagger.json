@@ -531,6 +531,9 @@
                 },
                 "password_hash": {
                     "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },

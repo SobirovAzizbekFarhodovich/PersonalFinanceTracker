@@ -538,6 +538,9 @@ const docTemplate = `{
                 },
                 "password_hash": {
                     "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },

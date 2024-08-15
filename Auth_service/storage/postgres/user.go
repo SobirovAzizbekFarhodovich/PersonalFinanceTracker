@@ -35,8 +35,8 @@ func (u *UserStorage) RegisterUser(user *pb.RegisterUserRequest) (*pb.RegisterUs
 	if err != nil {
 		return nil, err
 	}
-	query := `INSERT INTO users (email, password_hash, first_name, last_name) VALUES ($1, $2, $3, $4)`
-	_, err = u.db.Exec(query, user.Email, hashedPassword, user.FirstName, user.LastName)
+	query := `INSERT INTO users (email, password_hash, first_name, last_name,role) VALUES ($1, $2, $3, $4, $5)`
+	_, err = u.db.Exec(query, user.Email, hashedPassword, user.FirstName, user.LastName,user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (u *UserStorage) RegisterUser(user *pb.RegisterUserRequest) (*pb.RegisterUs
 
 func (u *UserStorage) LoginUser(user *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	query := `
-	SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = $1 AND deleted_at = 0
+	SELECT id, email, password_hash, first_name, last_name, role FROM users WHERE email = $1 AND deleted_at = 0
 	`
 	row := u.db.QueryRow(query, user.Email)
 	res := pb.LoginUserResponse{}
@@ -55,6 +55,7 @@ func (u *UserStorage) LoginUser(user *pb.LoginUserRequest) (*pb.LoginUserRespons
 		&res.PasswordHash,
 		&res.FirstName,
 		&res.LastName,
+		&res.Role,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -145,7 +146,6 @@ func (u *UserStorage) DeleteUser(id *pb.DeleteUserRequest) (*pb.DeleteUserRespon
 }
 
 func (u *UserStorage) ChangePassword(password *pb.ChangePasswordRequest) (*pb.ChangePasswordResponse, error) {
-	// Fetch the current hashed password from the database
 	var currentHashedPassword string
 	query := `
 		SELECT password_hash
@@ -160,19 +160,16 @@ func (u *UserStorage) ChangePassword(password *pb.ChangePasswordRequest) (*pb.Ch
 		return nil, err
 	}
 
-	// Compare the current password with the hashed password
 	err = bcrypt.CompareHashAndPassword([]byte(currentHashedPassword), []byte(password.CurrentPassword))
 	if err != nil {
 		return nil, fmt.Errorf("invalid current password")
 	}
 
-	// Hash the new password
 	hashedNewPassword, err := bcrypt.GenerateFromPassword([]byte(password.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash new password")
 	}
 
-	// Update the password in the database
 	updateQuery := `
 		UPDATE users
 		SET password_hash = $2, updated_at = $3

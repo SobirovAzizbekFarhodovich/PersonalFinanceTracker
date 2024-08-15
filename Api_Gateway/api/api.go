@@ -41,7 +41,7 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 
 	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, // Adjust for your specific origins
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
