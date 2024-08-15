@@ -140,7 +140,7 @@ func TestGetBudget(t *testing.T) {
 		req := &pb.GetBudgetRequest{Id: "example-id"}
 
 		resp, err := budgetService.GetBudget(req)
-
+		
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
