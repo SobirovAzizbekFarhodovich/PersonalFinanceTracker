@@ -23,29 +23,27 @@ func NewGoalService(stg *storage.StorageI) *GoalService {
 func (s *GoalService) CreateGoal(c context.Context, req *pb.CreateGoalRequest) (*pb.CreateGoalResponse, error) {
 	id := uuid.NewString()
 	req.Goal.Id = id
-	_, err := s.stg.Goal().CreateGoal(req)
-	if err != nil {
-		return nil, err
-	}
 
-	user_id, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Goal.UserId})
+	userBalanceResp, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Goal.UserId})
 	if err != nil {
 		return nil, errors.New("user not found")
 	}
-	if req.Goal.TargetAmount <= user_id.Balance {
+
+	if req.Goal.TargetAmount <= userBalanceResp.Balance {
 		return nil, errors.New("current amount greater than target amount")
 	}
+
 	req.Goal.Status = "in_progress"
+	req.Goal.CurrentAmount = userBalanceResp.Balance
 
-	req.Goal.CurrentAmount = user_id.Balance
-
-	_, err = s.stg.Goal().CreateGoal(&pb.CreateGoalRequest{Goal: req.Goal})
+	_, err = s.stg.Goal().CreateGoal(req)
 	if err != nil {
-		return nil, errors.New("failed to create goal")
+		return nil, fmt.Errorf("failed to create goal: %v", err)
 	}
 
 	return &pb.CreateGoalResponse{}, nil
 }
+
 
 func (s *GoalService) UpdateGoal(c context.Context, req *pb.UpdateGoalRequest) (*pb.UpdateGoalResponse, error) {
 	_, err := s.stg.Goal().UpdateGoal(req)
