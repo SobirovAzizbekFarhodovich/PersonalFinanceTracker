@@ -1049,6 +1049,8 @@ paths:
           description: User Not Found
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Get income details
       tags:
       - Transaction
@@ -1078,6 +1080,8 @@ paths:
           description: User Not Found
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Get spending details
       tags:
       - Transaction

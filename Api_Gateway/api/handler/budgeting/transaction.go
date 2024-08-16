@@ -152,6 +152,7 @@ func (h *BudgetingHandler) ListTransactions(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param user_id query string true "User ID"
+// @Security BearerAuth
 // @Success 200 {object} pb.SpendingResponse
 // @Failure 400 {string} string "Bad Request"
 // @Failure 404 {string} string "User Not Found"
@@ -184,6 +185,7 @@ func (h *BudgetingHandler) Spending(ctx *gin.Context) {
 // @Produce  json
 // @Param user_id query string true "User ID"
 // @Success 200 {object} pb.IncomeResponse
+// @Security BearerAuth
 // @Failure 400 {string} string "Bad Request"
 // @Failure 404 {string} string "User Not Found"
 // @Router /transaction/income [get]

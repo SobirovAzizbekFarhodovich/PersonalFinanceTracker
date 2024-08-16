@@ -1232,6 +1232,11 @@ const docTemplate = `{
         },
         "/transaction/income": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get the count of income transactions and the total amount received.",
                 "consumes": [
                     "application/json"
@@ -1276,6 +1281,11 @@ const docTemplate = `{
         },
         "/transaction/spending": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get the count of spending transactions and the total amount spent.",
                 "consumes": [
                     "application/json"
