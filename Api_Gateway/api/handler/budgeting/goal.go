@@ -27,22 +27,7 @@ func (h *BudgetingHandler) CreateGoal(ctx *gin.Context) {
 		return
 	}
 
-	user_id, err := h.Account.GetAmount(context.Background(),&pb.GetAmountRequest{UserId: req.Goal.UserId})
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error":"user not found"})
-		return
-	}
-	if req.Goal.TargetAmount <= user_id.Balance{
-		ctx.JSON(http.StatusBadRequest, gin.H{"error":"Current amount greater than Target amount"})
-		return
-	}
-	req.Goal.Status = "in_progress"
-
-	req.Goal.CurrentAmount = user_id.Balance
-
-	
-
-	_, err = h.Goal.CreateGoal(context.Background(), req)
+	_, err := h.Goal.CreateGoal(context.Background(), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -66,26 +51,8 @@ func (h *BudgetingHandler) UpdateGoal(ctx *gin.Context) {
 	if err := ctx.BindJSON(req); err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
-	}
-
-	user_id, err := h.Account.GetAmount(context.Background(),&pb.GetAmountRequest{UserId: req.Goal.UserId})
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error":"user not found"})
-		return
-	}
-	if req.Goal.TargetAmount <= user_id.Balance{
-		ctx.JSON(http.StatusBadRequest, gin.H{"error":"Current amount greater than Target amount"})
-		return
-	}
-	req.Goal.Status = "in_progress"
-    
-	req.Goal.CurrentAmount = user_id.Balance
-    if req.Goal.CurrentAmount >= req.Goal.TargetAmount{
-        req.Goal.Status = "achieved"
-    }
-    
-
-	_, err = h.Goal.UpdateGoal(context.Background(), req)
+	}   
+	_, err := h.Goal.UpdateGoal(context.Background(), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -136,14 +103,6 @@ func (h *BudgetingHandler) GetGoal(ctx *gin.Context) {
         ctx.JSON(http.StatusBadRequest, gin.H{"error": "goal not found"})
         return
     }
-
-    balanceRes, err := h.Account.GetAmount(context.Background(), &pb.GetAmountRequest{UserId: res.Goal.UserId})
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
-        return
-    }
-
-    res.Goal.CurrentAmount = balanceRes.Balance
     ctx.JSON(http.StatusOK, res)
 }
 
@@ -187,15 +146,6 @@ func (h *BudgetingHandler) ListGoals(ctx *gin.Context) {
         return
     }
 
-    for _, goal := range res.Goals {
-        balanceRes, err := h.Account.GetAmount(context.Background(), &pb.GetAmountRequest{UserId: goal.UserId})
-        if err != nil {
-            ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve balance"})
-            return
-        }
-        goal.CurrentAmount = balanceRes.Balance
-    }
-
     ctx.JSON(http.StatusOK, res)
 }
 
@@ -218,18 +168,6 @@ func (h *BudgetingHandler) GenerateGoalProgressReport(ctx *gin.Context) {
     if err != nil {
         ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to generate goal progress report"})
         return
-    }
-
-    balanceRes, err := h.Account.GetAmount(context.Background(), &pb.GetAmountRequest{UserId: res.UserId})
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve balance"})
-        return
-    }
-
-    res.CurrentAmount = balanceRes.Balance
-    res.RemainAmount = res.TargetAmount - res.CurrentAmount
-    if res.CurrentAmount >= res.TargetAmount{
-        res.Status = "achieved"
     }
     ctx.JSON(http.StatusOK, res)
 }

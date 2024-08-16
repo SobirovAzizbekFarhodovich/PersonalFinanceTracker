@@ -4,6 +4,8 @@ import (
 	pb "budgeting/genprotos"
 	"budgeting/storage"
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -64,5 +66,44 @@ func (s *BudgetService) GenerateBudgetPerformanceReport(c context.Context, req *
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+
+	transactionres, err := s.stg.Transaction().ListTransactions(&pb.ListTransactionsRequest{})
+	if err != nil {
+		return nil, errors.New("failed to retrieve transactions")
+	}
+
+	var spentAmount float32 = 0
+	for _, transaction := range transactionres.Transactions {
+		if transaction.Type == "expense" {
+			spentAmount += transaction.Amount
+		}
+	}
+
+	resp := &pb.GenerateBudgetPerformanceReportResponse{
+		Id:          res.Id,
+		UserId:      res.UserId,
+		CategoryId:  res.CategoryId,
+		Amount:      res.Amount,
+		Period:      res.Period,
+		StartDate:   res.StartDate,
+		EndDate:     res.EndDate,
+		SpentAmount: spentAmount,
+	}
+
+	if spentAmount >= res.Amount {
+		message := fmt.Sprintf("You have exceeded your budget by spending %.2f sum.", spentAmount)
+		notificationReq := &pb.CreateNotificationRequest{
+			Notification: &pb.Notification{
+				Id:      uuid.NewString(),
+				UserId:  res.UserId,
+				Message: message,
+			},
+		}
+		_, err = s.stg.Notification().CreateNotification(&pb.CreateNotificationRequest{Notification: notificationReq.Notification})
+		if err != nil {
+			return nil, errors.New("notification not created")
+		}
+	}
+
+	return resp, nil
 }

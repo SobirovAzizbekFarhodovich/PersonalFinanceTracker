@@ -4,6 +4,9 @@ import (
 	pb "budgeting/genprotos"
 	"budgeting/storage"
 	"context"
+	"errors"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -24,6 +27,23 @@ func (s *GoalService) CreateGoal(c context.Context, req *pb.CreateGoalRequest) (
 	if err != nil {
 		return nil, err
 	}
+
+	user_id, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Goal.UserId})
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+	if req.Goal.TargetAmount <= user_id.Balance {
+		return nil, errors.New("current amount greater than target amount")
+	}
+	req.Goal.Status = "in_progress"
+
+	req.Goal.CurrentAmount = user_id.Balance
+
+	_, err = s.stg.Goal().CreateGoal(&pb.CreateGoalRequest{Goal: req.Goal})
+	if err != nil {
+		return nil, errors.New("failed to create goal")
+	}
+
 	return &pb.CreateGoalResponse{}, nil
 }
 
@@ -32,6 +52,30 @@ func (s *GoalService) UpdateGoal(c context.Context, req *pb.UpdateGoalRequest) (
 	if err != nil {
 		return nil, err
 	}
+
+	user_id, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Goal.UserId})
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	if req.Goal.TargetAmount <= user_id.Balance {
+		return nil, errors.New("current amount greater than target amount")
+	}
+	req.Goal.Status = "in_progress"
+
+	req.Goal.CurrentAmount = user_id.Balance
+	if req.Goal.CurrentAmount >= req.Goal.TargetAmount {
+		req.Goal.Status = "achieved"
+	}
+	deadlineStr := req.Goal.Deadline + "T00:00:00Z"
+	deadlineTime, err := time.Parse(time.RFC3339, deadlineStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid deadline format")
+	}
+	if time.Now().After(deadlineTime) {
+		req.Goal.Status = "failed"
+	}
+
 	return &pb.UpdateGoalResponse{}, nil
 }
 
@@ -48,6 +92,14 @@ func (s *GoalService) GetGoal(c context.Context, req *pb.GetGoalRequest) (*pb.Ge
 	if err != nil {
 		return nil, err
 	}
+
+	accountres, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: res.Goal.UserId})
+	if err != nil {
+		return nil, errors.New("account not found")
+	}
+
+	res.Goal.CurrentAmount = accountres.Balance
+
 	return res, nil
 }
 
@@ -56,6 +108,16 @@ func (s *GoalService) ListGoals(c context.Context, req *pb.ListGoalsRequest) (*p
 	if err != nil {
 		return nil, err
 	}
+
+	for _, goal := range res.Goals {
+		accountres, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: goal.UserId})
+		if err != nil {
+			return nil, errors.New("account not found")
+		}
+
+		goal.CurrentAmount = accountres.Balance
+	}
+	
 	return res, nil
 }
 
@@ -64,5 +126,19 @@ func (s *GoalService) GenerateGoalProgressReport(c context.Context, req *pb.Gene
 	if err != nil {
 		return nil, err
 	}
+
+	accountres, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: res.UserId})
+	if err != nil {
+		return nil, errors.New("account not found")
+	}
+
+	res.CurrentAmount = accountres.Balance
+
+	res.CurrentAmount = accountres.Balance
+    res.RemainAmount = res.TargetAmount - res.CurrentAmount
+    if res.CurrentAmount >= res.TargetAmount{
+        res.Status = "achieved"
+    }
+
 	return res, nil
 }
