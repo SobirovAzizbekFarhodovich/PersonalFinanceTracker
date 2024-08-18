@@ -26,8 +26,8 @@ import (
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
-func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn, storageRedis handlerC.InMemoryStorageI) *gin.Engine {
-	budgeting := handlerC.NewBudgetingHandler(budgetingConn, storageRedis)
+func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
+	budgeting := handlerC.NewBudgetingHandler(budgetingConn)
 
 	router := gin.Default()
 

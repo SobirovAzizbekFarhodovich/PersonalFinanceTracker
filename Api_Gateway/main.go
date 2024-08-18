@@ -5,10 +5,8 @@ import (
 	"log"
 
 	"api/api"
-	red "api/api/handler/budgeting"
 	"api/config"
 
-	"github.com/go-redis/redis/v8"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -21,18 +19,12 @@ func main() {
 	}
 	defer authservice.Close()
 
-	companyService, err := grpc.NewClient("budgeting_service"+ cnf.BUDGETING_PORT, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	companyService, err := grpc.NewClient("budgeting_service"+cnf.BUDGETING_PORT, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to learning service service %v", err)
 	}
 
-	CL:=redis.NewClient(&redis.Options{
-		Addr: "redis1:6370",
-	})
-
-	c := red.NewInMemoryStorage(CL)
-
-	router := api.NewGin(companyService, c)
+	router := api.NewGin(companyService)
 
 	fmt.Println("API Gateway running on http://localhost:8082")
 	if err := router.Run(":8082"); err != nil {

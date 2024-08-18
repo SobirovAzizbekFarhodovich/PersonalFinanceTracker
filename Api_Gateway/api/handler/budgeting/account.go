@@ -3,15 +3,10 @@ package handler
 import (
 	pb "api/genprotos/budgeting"
 	"context"
-	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 )
 
 // @Summary Create Account
@@ -101,51 +96,15 @@ func (h *BudgetingHandler) DeleteAccount(ctx *gin.Context) {
 // @Router /account/get/{id} [get]
 func (h *BudgetingHandler) GetAccount(ctx *gin.Context) {
 	id := ctx.Param("id")
-	if id == "" {
-		ctx.JSON(400, gin.H{"error": "Missing or invalid ID"})
-		return
-	}
-
 	req := &pb.GetAccountRequest{Id: id}
 
-	cacheKey := "user_id:" + req.Id
-	cachedData, err := h.Redis.Get(cacheKey)
-	if err != nil && err != redis.Nil {
-		ctx.JSON(500, gin.H{"error": "Internal server error"})
+	res, err := h.Account.GetAccount(context.Background(), req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	var res *pb.GetAccountResponse
-
-	if err == nil {
-		fmt.Println("redis")
-		if err := json.Unmarshal([]byte(cachedData), &res); err != nil {
-			ctx.JSON(500, gin.H{"error": "Failed to parse cached data"})
-			return
-		}
-	} else if err == redis.Nil {
-		fmt.Println("mongo")
-		res, err = h.Account.GetAccount(ctx, req)
-		if err != nil {
-			ctx.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-
-		data, err := json.Marshal(res)
-		if err != nil {
-			log.Fatalf("Failed to marshal response: %v", err)
-		} else {
-			err := h.Redis.Set(cacheKey, string(data), 30*time.Minute)
-			if err != nil {
-				log.Fatalf("Failed to set data in Redis: %v", err)
-			}
-		}
-	} else {
-		ctx.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(200, res)
+	ctx.JSON(http.StatusOK, res)
 }
 
 // @Summary ListAccounts
