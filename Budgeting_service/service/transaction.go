@@ -26,6 +26,21 @@ func (s *TransactionService) CreateTransaction(c context.Context, req *pb.Create
 	if err != nil {
 		return nil, err
 	}
+	if _, err := uuid.Parse(req.Transaction.UserId); err != nil {
+		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
+	}
+
+	if _, err := uuid.Parse(req.Transaction.AccountId); err != nil {
+		return nil, fmt.Errorf("invalid AccountId: must be a valid UUID")
+	}
+
+	if _, err := uuid.Parse(req.Transaction.CategoryId); err != nil {
+		return nil, fmt.Errorf("invalid CategoryId: must be a valid UUID")
+	}
+
+	if req.Transaction.Type != "expense" && req.Transaction.Type != "income" {
+		return nil, fmt.Errorf("invalid Transaction Type: must be either 'expense' or 'income'")
+	}
 
 	Amountres, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Transaction.UserId})
 	if err != nil {
@@ -67,6 +82,22 @@ func (s *TransactionService) UpdateTransaction(c context.Context, req *pb.Update
 	_, err := s.stg.Transaction().UpdateTransaction(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if _, err := uuid.Parse(req.Transaction.UserId); err != nil {
+		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
+	}
+
+	if _, err := uuid.Parse(req.Transaction.AccountId); err != nil {
+		return nil, fmt.Errorf("invalid AccountId: must be a valid UUID")
+	}
+
+	if _, err := uuid.Parse(req.Transaction.CategoryId); err != nil {
+		return nil, fmt.Errorf("invalid CategoryId: must be a valid UUID")
+	}
+
+	if req.Transaction.Type != "expense" && req.Transaction.Type != "income" {
+		return nil, fmt.Errorf("invalid Transaction Type: must be either 'expense' or 'income'")
 	}
 
 	Amountres, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Transaction.UserId})
@@ -118,7 +149,7 @@ func (s *TransactionService) UpdateTransaction(c context.Context, req *pb.Update
 }
 
 func (s *TransactionService) DeleteTransaction(c context.Context, req *pb.DeleteTransactionRequest) (*pb.DeleteTransactionResponse, error) {
-	
+
 	gettr, err := s.stg.Transaction().GetTransaction(&pb.GetTransactionRequest{Id: req.Id})
 	if err != nil {
 		return nil, errors.New("transaction not found")
@@ -127,14 +158,14 @@ func (s *TransactionService) DeleteTransaction(c context.Context, req *pb.Delete
 	if err != nil {
 		return nil, errors.New("user not found")
 	}
-	
+
 	amount := Amountres.Balance
 	if gettr.Transaction.Type == "expense" {
 		amount += gettr.Transaction.Amount
 	} else if gettr.Transaction.Type == "income" {
 		amount -= gettr.Transaction.Amount
 	}
-	
+
 	_, err = s.stg.Account().UpdateAmount(&pb.UpdateAmountRequest{UserId: gettr.Transaction.UserId, Balance: amount})
 	if err != nil {
 		return nil, errors.New("failed to update amount")
@@ -157,7 +188,7 @@ func (s *TransactionService) DeleteTransaction(c context.Context, req *pb.Delete
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &pb.DeleteTransactionResponse{}, nil
 }
 

@@ -1,9 +1,10 @@
 package service
 
 import (
-	"context"
 	pb "budgeting/genprotos"
 	"budgeting/storage"
+	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -20,6 +21,15 @@ func NewCategoryService(stg *storage.StorageI) *CategoryService {
 func (s *CategoryService) CreateCategory(c context.Context,req *pb.CreateCategoryRequest) (*pb.CreateCategoryResponse, error) {
 	id := uuid.NewString()
 	req.Category.Id = id
+
+	if _, err := uuid.Parse(req.Category.UserId);err != nil{
+		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
+	}
+
+	if req.Category.Type != "expense" && req.Category.Type != "income" {
+		return nil, fmt.Errorf("invalid Category Type: must be either 'expense' or 'income'")
+	}
+
 	_, err := s.stg.Category().CreateCategory(req)
 	if err != nil {
 		return nil, err
@@ -31,6 +41,13 @@ func (s *CategoryService) UpdateCategory(c context.Context,req *pb.UpdateCategor
 	_, err := s.stg.Category().UpdateCategory(req)
 	if err != nil {
 		return nil, err
+	}
+	if _, err := uuid.Parse(req.Category.UserId);err != nil{
+		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
+	}
+
+	if req.Category.Type != "expense" && req.Category.Type != "income" {
+		return nil, fmt.Errorf("invalid Category Type: must be either 'expense' or 'income'")
 	}
 	return &pb.UpdateCategoryResponse{}, nil
 }

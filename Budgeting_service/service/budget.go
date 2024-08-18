@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -22,7 +23,30 @@ func NewBudgetService(stg *storage.StorageI) *BudgetService {
 func (s *BudgetService) CreateBudget(c context.Context, req *pb.CreateBudgetRequest) (*pb.CreateBudgetResponse, error) {
 	id := uuid.NewString()
 	req.Budget.Id = id
-	_, err := s.stg.Budget().CreateBudget(req)
+
+	if _, err := uuid.Parse(req.Budget.UserId); err != nil {
+		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
+	}
+
+	if _, err := uuid.Parse(req.Budget.CategoryId); err != nil {
+		return nil, fmt.Errorf("invalid CategoryId: must be a valid UUID")
+	}
+
+	if req.Budget.Period != "daily" && req.Budget.Period != "weekly" && req.Budget.Period != "monthly" && req.Budget.Period != "yearly" {
+		return nil, fmt.Errorf("invalid Budget Period: must be 'daily' or 'weekly' or 'monthly' or 'yearly'")
+	}
+
+	_, err := time.Parse("2006-01-02", req.Budget.EndDate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid EndDate: must be a valid date in 'YYYY-MM-DD' format")
+	}
+
+	_, err = time.Parse("2006-01-02", req.Budget.StartDate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid StartDate: must be a valid date in 'YYYY-MM--DD' format")
+	}
+
+	_, err = s.stg.Budget().CreateBudget(req)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +54,29 @@ func (s *BudgetService) CreateBudget(c context.Context, req *pb.CreateBudgetRequ
 }
 
 func (s *BudgetService) UpdateBudget(c context.Context, req *pb.UpdateBudgetRequest) (*pb.UpdateBudgetResponse, error) {
-	_, err := s.stg.Budget().UpdateBudget(req)
+	if _, err := uuid.Parse(req.Budget.UserId); err != nil {
+		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
+	}
+
+	if _, err := uuid.Parse(req.Budget.CategoryId); err != nil {
+		return nil, fmt.Errorf("invalid CategoryId: must be a valid UUID")
+	}
+
+	if req.Budget.Period != "daily" && req.Budget.Period != "weekly" && req.Budget.Period != "monthly" && req.Budget.Period != "yearly" {
+		return nil, fmt.Errorf("invalid Budget Period: must be 'daily' or 'weekly' or 'monthly' or 'yearly'")
+	}
+
+	_, err := time.Parse("2006-01-02", req.Budget.EndDate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid EndDate: must be a valid date in 'YYYY-MM-DD' format")
+	}
+
+	_, err = time.Parse("2006-01-02", req.Budget.StartDate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid StartDate: must be a valid date in 'YYYY-MM--DD' format")
+	}
+
+	_, err = s.stg.Budget().UpdateBudget(req)
 	if err != nil {
 		return nil, err
 	}

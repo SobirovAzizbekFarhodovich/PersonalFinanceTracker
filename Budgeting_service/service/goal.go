@@ -24,6 +24,12 @@ func (s *GoalService) CreateGoal(c context.Context, req *pb.CreateGoalRequest) (
 	id := uuid.NewString()
 	req.Goal.Id = id
 
+	_, err := time.Parse("2006-01-02", req.Goal.Deadline)
+	if err != nil {
+		return nil, fmt.Errorf("invalid Deadline: must be a valid date in 'YYYY-MM-DD' format")
+	}
+	
+
 	userBalanceResp, err := s.stg.Account().GetAmount(&pb.GetAmountRequest{UserId: req.Goal.UserId})
 	if err != nil {
 		return nil, errors.New("user not found")
