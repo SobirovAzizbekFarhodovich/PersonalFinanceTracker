@@ -4,7 +4,6 @@ import (
 	pb "budgeting/genprotos"
 	"budgeting/storage"
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -19,9 +18,6 @@ func NewAccountService(stg *storage.StorageI) *AccountService {
 }
 
 func (s *AccountService) CreateAccount(c context.Context, req *pb.CreateAccountRequest) (*pb.CreateAccountResponse, error) {
-	if _, err := uuid.Parse(req.Account.UserId); err != nil {
-		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
-	}
 	id := uuid.NewString()
 	req.Account.Id = id
 
@@ -33,9 +29,6 @@ func (s *AccountService) CreateAccount(c context.Context, req *pb.CreateAccountR
 }
 
 func (s *AccountService) UpdateAccount(c context.Context, req *pb.UpdateAccountRequest) (*pb.UpdateAccountResponse, error) {
-	if _, err := uuid.Parse(req.Account.UserId); err != nil {
-		return nil, fmt.Errorf("invalid UserId: must be a valid UUID")
-	}
 	_, err := s.stg.Account().UpdateAccount(req)
 	if err != nil {
 		return nil, err

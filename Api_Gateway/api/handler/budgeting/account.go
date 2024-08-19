@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"api/api/token"
+	"api/config"
 	pb "api/genprotos/budgeting"
 	"context"
 	"net/http"
@@ -25,6 +27,9 @@ func (h *BudgetingHandler) CreateAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Account.UserId = id
 
 	_, err := h.Account.CreateAccount(context.Background(), req)
 	if err != nil {
@@ -51,6 +56,9 @@ func (h *BudgetingHandler) UpdateAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Account.UserId = id
 
 	_, err := h.Account.UpdateAccount(context.Background(), req)
 	if err != nil {
