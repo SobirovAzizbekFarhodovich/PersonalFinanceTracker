@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"api/api/token"
+	"api/config"
 	pb "api/genprotos/budgeting"
 	"context"
 	"net/http"
@@ -25,6 +27,9 @@ func (h *BudgetingHandler) CreateCategory(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Category.UserId = id
 
 	_, err := h.Category.CreateCategory(context.Background(), req)
 	if err != nil {
@@ -57,6 +62,9 @@ func (h *BudgetingHandler) UpdateCategory(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Category.UserId = id
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Category Updated Successfully"})
 }

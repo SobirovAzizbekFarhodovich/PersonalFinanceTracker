@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"api/api/token"
+	"api/config"
 	pb "api/genprotos/budgeting"
 	"context"
 	"net/http"
@@ -26,6 +28,9 @@ func (h *BudgetingHandler) CreateGoal(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Goal.UserId = id
 
 	_, err := h.Goal.CreateGoal(context.Background(), req)
 	if err != nil {
@@ -51,7 +56,10 @@ func (h *BudgetingHandler) UpdateGoal(ctx *gin.Context) {
 	if err := ctx.BindJSON(req); err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
-	}   
+	}
+    c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Goal.UserId = id
 	_, err := h.Goal.UpdateGoal(context.Background(), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
@@ -95,17 +103,16 @@ func (h *BudgetingHandler) DeleteGoal(ctx *gin.Context) {
 // @Failure 400 {string} string "Error"
 // @Router /goal/get/{id} [get]
 func (h *BudgetingHandler) GetGoal(ctx *gin.Context) {
-    id := ctx.Param("id")
+	id := ctx.Param("id")
 
-    req := &pb.GetGoalRequest{Id: id}
-    res, err := h.Goal.GetGoal(context.Background(), req)
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "goal not found"})
-        return
-    }
-    ctx.JSON(http.StatusOK, res)
+	req := &pb.GetGoalRequest{Id: id}
+	res, err := h.Goal.GetGoal(context.Background(), req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "goal not found"})
+		return
+	}
+	ctx.JSON(http.StatusOK, res)
 }
-
 
 // @Summary List Goals
 // @Description List all goals with pagination
@@ -119,36 +126,35 @@ func (h *BudgetingHandler) GetGoal(ctx *gin.Context) {
 // @Failure 400 {string} string "Bad Request"
 // @Router /goal/get [get]
 func (h *BudgetingHandler) ListGoals(ctx *gin.Context) {
-    defaultLimit := 10
-    defaultPage := 1
+	defaultLimit := 10
+	defaultPage := 1
 
-    limitStr := ctx.Query("limit")
-    pageStr := ctx.Query("page")
+	limitStr := ctx.Query("limit")
+	pageStr := ctx.Query("page")
 
-    limit, err := strconv.Atoi(limitStr)
-    if err != nil || limit <= 0 {
-        limit = defaultLimit
-    }
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = defaultLimit
+	}
 
-    page, err := strconv.Atoi(pageStr)
-    if err != nil || page <= 0 {
-        page = defaultPage
-    }
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = defaultPage
+	}
 
-    req := &pb.ListGoalsRequest{
-        Limit: int32(limit),
-        Page:  int32(page),
-    }
+	req := &pb.ListGoalsRequest{
+		Limit: int32(limit),
+		Page:  int32(page),
+	}
 
-    res, err := h.Goal.ListGoals(context.Background(), req)
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to list goals"})
-        return
-    }
+	res, err := h.Goal.ListGoals(context.Background(), req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to list goals"})
+		return
+	}
 
-    ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusOK, res)
 }
-
 
 // @Summary Generate Goal Progress Report
 // @Description Generate a progress report for a specific goal by ID
@@ -161,13 +167,13 @@ func (h *BudgetingHandler) ListGoals(ctx *gin.Context) {
 // @Failure 400 {string} string "Error"
 // @Router /goal/getprogress/{id} [get]
 func (h *BudgetingHandler) GenerateGoalProgressReport(ctx *gin.Context) {
-    id := ctx.Param("id")
-    req := &pb.GenerateGoalProgressReportRequest{Id: id}
+	id := ctx.Param("id")
+	req := &pb.GenerateGoalProgressReportRequest{Id: id}
 
-    res, err := h.Goal.GenerateGoalProgressReport(context.Background(), req)
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to generate goal progress report"})
-        return
-    }
-    ctx.JSON(http.StatusOK, res)
+	res, err := h.Goal.GenerateGoalProgressReport(context.Background(), req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to generate goal progress report"})
+		return
+	}
+	ctx.JSON(http.StatusOK, res)
 }

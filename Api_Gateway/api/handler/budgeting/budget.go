@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"api/api/token"
+	"api/config"
 	pb "api/genprotos/budgeting"
 	"context"
 	"net/http"
@@ -25,7 +27,9 @@ func (h *BudgetingHandler) CreateBudget(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Budget.UserId = id
 	_, err := h.Budget.CreateBudget(context.Background(), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
@@ -51,6 +55,9 @@ func (h *BudgetingHandler) UpdateBudget(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Budget.UserId = id
 
 	_, err := h.Budget.UpdateBudget(context.Background(), req)
 	if err != nil {

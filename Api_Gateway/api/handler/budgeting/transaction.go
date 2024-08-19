@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"api/api/token"
+	"api/config"
 	pb "api/genprotos/budgeting"
 	"context"
 	"net/http"
@@ -25,6 +27,9 @@ func (h *BudgetingHandler) CreateTransaction(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Transaction.UserId = id
 	_, err := h.Transaction.CreateTransaction(context.Background(), req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Transaction not created", "details": err.Error()})
@@ -50,6 +55,9 @@ func (h *BudgetingHandler) UpdateTransaction(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+	c := config.Load()
+	id, _ := token.GetIdFromToken(ctx.Request, &c)
+	req.Transaction.UserId = id
 	_, err := h.Transaction.UpdateTransaction(context.Background(), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
